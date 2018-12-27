@@ -7,6 +7,9 @@ axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.headers.put['Content-Type'] = 'application/json'
 axios.defaults.headers.delete['Content-Type'] = 'application/json'
 
+// 设置请求携带session
+axios.defaults.withCredentials = true
+
 // 请求超时时间
 axios.defaults.timeout = 30000
 

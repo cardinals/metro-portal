@@ -157,9 +157,24 @@
       &.edit{
         .modelCtn{
           background: rgba(24,65,134,0.8);
+          .drag{
+            &:hover{
+              .delete{
+                display: block!important;
+              }
+              .changed{
+                display: block!important;
+              }
+            }
+          }
         }
-        .delete{
-          display: block!important;
+        .marks{
+          cursor: pointer;
+          &:hover{
+            img{
+              display: inline;
+            }
+          }
         }
       }
       .modelCtn{
@@ -180,12 +195,6 @@
           position: absolute;
           top: -50px;
           left: 6px;
-          cursor: pointer;
-          &:hover{
-            img{
-              display: inline;
-            }
-          }
           span{
             font-size:20px;
             line-height: 50px;
@@ -212,6 +221,7 @@
           }
         }
         .drag{
+          cursor: pointer;
           box-sizing: border-box;
           padding:6px 14px 6px 9px;
           margin: 6px;
@@ -220,7 +230,8 @@
           transition: 0.1s linear;
           &:hover{
             box-shadow:0 0 10px #63BAFF;
-            transform: scale(1.02)
+            transform: scale(1.02);
+            z-index: 1;
           }
           &.drag1{
             width:148px;
@@ -245,14 +256,15 @@
             right: 0;
             top: 0;
             border-radius: 0 0 0 30px;
-            background: #fff;
+            background: rgba(0,0,0,0.8);
             width: 30px;
             height: 30px;
-            color:#5D5D5D;
+            color:#fff;
             cursor: pointer;
             display: none;
             &:hover{
-              color: #74C2FF;
+              background: rgba(0,0,0,0.6);
+              color: #fff;
             }
             span{
               position: absolute;
@@ -260,6 +272,115 @@
               right: 5px;
               top: 0px;
               font-style: normal;
+            }
+          }
+          .changed{
+            display: none;
+            position: absolute;
+            top: calc(100% - 36px);
+            width: 30px;
+            max-height: 30px;
+            overflow: hidden;
+            transition: 0.3s linear;
+            &:hover{
+              max-height: 300px;
+              .list{
+                display: block;
+              }
+            }
+            .button{
+              width: 30px;
+              height: 30px;
+              background: rgba(0,0,0,0.8);
+              position: relative;
+              text-align: center;
+              &::after{
+                content: '';
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                width:0;
+                height:0;
+                border-width:5px 5px 0 0 ;
+                border-style:solid;
+                border-color:transparent rgba(255,255,255,0.8) transparent transparent;
+              }
+              img{
+                vertical-align: -10px;
+              }
+            }
+            .list{
+              margin-top: 5px;
+              background: rgba(0,0,0,0.6);
+              .font{
+                width: 30px;
+                line-height: 30px;
+                text-align: center;
+                color:rgba(255,255,255,0.4);
+                cursor: pointer;
+                &:hover{
+                  color:#fff;
+                  font-weight: bold;
+                }
+              }
+              .rect{
+                width: 30px;
+                height: 30px;
+                overflow: hidden;
+                cursor: pointer;
+                .border-box{
+                  width: 20px;
+                  height: 20px;
+                  margin:4px;
+                  border: 1px solid transparent;
+                  .content-box{
+                    width: 14px;
+                    height: 14px;
+                    margin: 3px;
+                  }
+                  &:hover{
+                    &.blue{
+                      border-color: #0077D5;
+                    }
+                    &.green{
+                      border-color: #39825A;
+                    }
+                    &.orange{
+                      border-color: #DC3C00;
+                    }
+                    &.red{
+                      border-color: #AE4D50;
+                    }
+                  }
+                  &.blue{
+                    .content-box{
+                      background: #0077D5;
+                    }
+                  }
+                  &.green{
+                    .content-box{
+                      background: #39825A;
+                    }
+                  }
+                  &.orange{
+                    .content-box{
+                      background: #DC3C00;
+                    }
+                  }
+                  &.red{
+                    .content-box{
+                      background: #AE4D50;
+                    }
+                  }
+                }
+                
+              }
+            }
+            &.changeSize{
+              right: 42px;
+            }
+            &.changeColor{
+              right: 6px;
             }
           }
         }

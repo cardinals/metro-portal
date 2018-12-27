@@ -1,0 +1,97 @@
+@import './common.less';
+.loginCtn{
+  height: 100%;
+  position: relative;
+  background: url('../image/bg.png') 100% 100%;
+  .header{
+    position: absolute;
+    left: 35px;
+    top: 35px;
+  }
+  .contentCtn{
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 10%;
+    left: 0;
+    margin: auto;
+    width: 347px;
+    height: 322px;
+    background-color:rgba(141,176,255,0.07);
+    box-shadow:0px 9px 20px 2px rgba(212, 212, 212, 0.2);
+    border-radius:10px;
+    .img{
+      position: absolute;
+      left: 0;
+      right: 0;
+      margin: auto;
+      top: -25px;
+    }
+    .line1{
+      color: #1890FF;
+      font-size: 17px;
+      line-height: 55px;
+      text-align: center;
+    }
+    .line2{
+      width:252px;
+      margin: 20px auto;
+      height:42px;
+      border:1px solid rgba(24,144,255,1);
+      border-radius:4px;
+      box-sizing: border-box;
+      padding-left: 35px;
+      position: relative;
+      .icon{
+        position: absolute;
+        width: 15px;
+        height: 16px;
+        left: 10px;
+        top: 12px;
+        background: url('../image/icon_sp.png') right top;
+        &.psd{
+          background: url('../image/icon_sp.png') right bottom;
+        }
+      }
+      input{
+        width: 100%;
+        border: 0;
+        line-height: 40px;
+        background: transparent;
+        color: #1890FF;
+        font-size:14px;
+        vertical-align: middle;
+      }
+      input:focus { 
+        outline: none; 
+      }
+      input::-webkit-input-placeholder{
+        color:#D5D5D5;
+      }
+      input::-moz-placeholder{   /* Mozilla Firefox 19+ */
+        color:#D5D5D5;
+      }
+      input:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
+        color:#D5D5D5;
+      }
+      input:-ms-input-placeholder{  /* Internet Explorer 10-11 */ 
+        color:#D5D5D5;
+      }
+    }
+    .line3{
+      width:252px;
+      margin: 20px auto;
+      height:32px;
+    }
+    .button{
+      width:252px;
+      line-height:42px;
+      margin: 40px auto;
+      background:rgba(24,144,255,1);
+      border-radius:4px;
+      text-align: center;
+      color: #FEFEFE;
+      cursor: pointer;
+    }
+  }
+}
