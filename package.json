@@ -1,10 +1,11 @@
 {
-  "name": "songjiang",
-  "version": "0.1.0",
+  "name": "metro-portal",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build-image": "vue-cli-service build  &&  docker build -t nginx-metro-portal ./docker",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
     "eslint-plugin-vue": "^5.0.0-0",
     "less": "^3.0.4",
     "less-loader": "^4.1.0",
-    "vue-template-compiler": "^2.5.17"
+    "vue-template-compiler": "^2.5.17",
+    "compression-webpack-plugin": "^1.1.12"
   }
 }
