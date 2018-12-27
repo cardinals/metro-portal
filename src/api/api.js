@@ -1,5 +1,5 @@
 import http from '@/plugins/axios.js'
-const baseUrl = 'http://192.168.22.137:8788/portal'
+const baseUrl = '/portal'
 // 贴片列表清单
 const patchList = (params) => http.get(`${baseUrl}/patchList`, params)
 // 删除贴片
