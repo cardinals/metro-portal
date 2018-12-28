@@ -38,18 +38,17 @@
           <span :class="types==='已删除'?'button active':'button'" @click="types='已删除'">已删除</span>
         </div>
       </div>
+      <!-- 表格 -->
       <div class="tableCtn">
-        <!-- 待添加 -->
         <el-table
-          v-show="types==='待添加'"
           ref="filterTable"
-          :data="toAddList.filter(data => !search || data.applicationtitle.toLowerCase().includes(search.toLowerCase()))"
+          :data="showWhichList.filter(data => !search || data.applicationtitle.toLowerCase().includes(search.toLowerCase()))"
           style="width: 100%">
           <el-table-column
-            label="切片名称"
+            label="贴片名称"
             width="440">
             <template slot="header" slot-scope="scope">
-              <span style="text-align:left" class="headTitle" :key="scope.name">切片名称</span>
+              <span style="text-align:left" class="headTitle" :key="scope.name">贴片名称</span>
             </template>
             <template slot-scope="scope">
               <span class="title">{{scope.row.applicationtitle}}</span>
@@ -57,18 +56,18 @@
             </template>
           </el-table-column>
           <el-table-column
-            prop="drag"
+            prop="picturesize"
             label="全部大小"
             width="120"
             align="center"
-            :filters="[{text: '大', value: 'drag3'},{text: '中', value: 'drag2'},{text: '小', value: 'drag1'}]"
+            :filters="[{text: '大', value: 'sizel'},{text: '中', value: 'sizem'},{text: '小', value: 'sizes'}]"
             :filter-method="filterHandler"
             >
             <template slot="header" slot-scope="scope">
               <span class="headTitle" :key="scope.applicationtitle">全部大小</span>
             </template>
             <template slot-scope="scope">
-              <span class="normal">{{scope.row.drag|sizeFilter}}</span>
+              <span class="normal">{{scope.row.picturesize|sizeFilter}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -120,8 +119,11 @@
               <span class="headTitle" :key="scope.name">操作</span>
             </template>
             <template slot-scope="scope">
-              <span v-if="role" :name="scope.row.name" class="opration opration1" @click="editModel(scope.row)">编辑</span>
-              <span :name="scope.row.name" class="opration" :class="{'opration2':role}">
+              <!-- 操作分已添加，待添加，已删除状态 -->
+              <!-- 编辑操作已添加和待添加状态，管理员可以使用 -->
+              <span v-if="role&&types!=='已删除'" :name="scope.row.name" class="opration opration1" @click="editModel(scope.row)">编辑</span>
+              <!-- 添加操作只有待添加状态有 -->
+              <span v-if="types==='待添加'" :name="scope.row.name" class="opration" :class="{'opration2':role}">
                 <el-dropdown trigger="click" @command="handleCommand">
                   <span class="el-dropdown-link">
                     添加
@@ -131,169 +133,13 @@
                   </el-dropdown-menu>
                 </el-dropdown>
               </span>
-              <span :name="scope.row.name" class="opration opration3" @click="deleteModel(scope.row.pictureid)">删除</span>
-            </template>
-          </el-table-column>
-        </el-table>
-        <!-- 已添加 -->
-        <el-table
-          v-show="types==='已添加'"
-          ref="filterTable"
-          :data="addedList.filter(data => !search || data.applicationtitle.toLowerCase().includes(search.toLowerCase()))"
-          style="width: 100%">
-          <el-table-column
-            label="切片名称"
-            width="440">
-            <template slot="header" slot-scope="scope">
-              <span style="text-align:left" class="headTitle" :key="scope.name">切片名称</span>
-            </template>
-            <template slot-scope="scope">
-              <span class="title">{{scope.row.applicationtitle}}</span>
-              <span class="info">{{scope.row.applicationdescribe}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="drag"
-            label="全部大小"
-            width="120"
-            align="center"
-            :filters="[{text: '大', value: 'drag3'},{text: '中', value: 'drag2'},{text: '小', value: 'drag1'}]"
-            :filter-method="filterHandler"
-            >
-            <template slot="header" slot-scope="scope">
-              <span class="headTitle" :key="scope.applicationtitle">全部大小</span>
-            </template>
-            <template slot-scope="scope">
-              <span class="normal">{{scope.row.drag|sizeFilter}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="picturetype"
-            label="全部类型"
-            width="120"
-            align="center"
-            :filters="[{text: '图标', value: 'icon'},{text: '数字', value: 'num'},{text: '文本信息', value: 'text'},{text: '数字列表', value: 'list'}]"
-            :filter-method="filterHandlerIcon">
-            <template slot="header" slot-scope="scope">
-              <span class="headTitle" :key="scope.applicationtitle">全部类型</span>
-            </template>
-            <template slot-scope="scope">
-              <span class="normal">{{scope.row.picturetype|typeFilter}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="bgcolor"
-            label="全部颜色"
-            width="120"
-            align="center"
-            :filters="[{text: '蓝色', value: 'bg-blue'},{text: '绿色', value: 'bg-green'},{text: '红色', value: 'bg-red'},{text: '橙色', value: 'bg-orange'}]"
-            :filter-method="filterHandler">>
-            <template slot="header" slot-scope="scope">
-              <span class="headTitle" :key="scope.applicationtitle">全部颜色</span>
-            </template>
-            <template slot-scope="scope">
-              <div class="circle" :class="scope.row.bgcolor"></div>
-              <span class="normal">{{scope.row.bgcolor|colorFilter}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="status"
-            label="是否启用"
-            width="90"
-            align="center">
-            <template slot="header" slot-scope="scope">
-              <span class="headTitle" :key="scope.applicationtitle">是否启用</span>
-            </template>
-            <template slot-scope="scope">
-              <span class="normal">{{scope.row.applicationenable|addFilter}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="size"
-            label="操作"
-            width="280"
-            align="center">
-            <template slot="header" slot-scope="scope">
-              <span class="headTitle" :key="scope.name">操作</span>
-            </template>
-            <template slot-scope="scope">
-              <span v-if="role" :name="scope.row.applicationtitle" class="opration opration1" @click="editModel(scope.row)">编辑</span>
-              <span :name="scope.row.applicationtitle" class="opration" :class="{'opration4':role}" @click="cancelModel(scope.row.pictureid,0)">取消添加</span>
-            </template>
-          </el-table-column>
-        </el-table>
-        <!-- 已删除 -->
-        <el-table
-          v-show="types==='已删除'"
-          ref="filterTable"
-          :data="deletedList.filter(data => !search || data.applicationtitle.toLowerCase().includes(search.toLowerCase()))"
-          style="width: 100%">
-          <el-table-column
-            label="切片名称"
-            width="440">
-            <template slot="header" slot-scope="scope">
-              <span style="text-align:left" class="headTitle" :key="scope.name">切片名称</span>
-            </template>
-            <template slot-scope="scope">
-              <span class="title">{{scope.row.applicationtitle}}</span>
-              <span class="info">{{scope.row.applicationdescribe}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="drag"
-            label="全部大小"
-            width="150"
-            align="center"
-            :filters="[{text: '大', value: 'drag3'},{text: '中', value: 'drag2'},{text: '小', value: 'drag1'}]"
-            :filter-method="filterHandler"
-            >
-            <template slot="header" slot-scope="scope">
-              <span class="headTitle" :key="scope.applicationtitle">全部大小</span>
-            </template>
-            <template slot-scope="scope">
-              <span class="normal">{{scope.row.drag|sizeFilter}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="picturetype"
-            label="全部类型"
-            width="150"
-            align="center"
-            :filters="[{text: '图标', value: 'icon'},{text: '数字', value: 'num'},{text: '文本信息', value: 'text'},{text: '数字列表', value: 'list'}]"
-            :filter-method="filterHandlerIcon">
-            <template slot="header" slot-scope="scope">
-              <span class="headTitle" :key="scope.applicationtitle">全部类型</span>
-            </template>
-            <template slot-scope="scope">
-              <span class="normal">{{scope.row.picturetype|typeFilter}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="bgcolor"
-            label="全部颜色"
-            width="150"
-            align="center"
-            :filters="[{text: '蓝色', value: 'bg-blue'},{text: '绿色', value: 'bg-green'},{text: '红色', value: 'bg-red'},{text: '橙色', value: 'bg-orange'}]"
-            :filter-method="filterHandler">>
-            <template slot="header" slot-scope="scope">
-              <span class="headTitle" :key="scope.applicationtitle">全部颜色</span>
-            </template>
-            <template slot-scope="scope">
-              <div class="circle" :class="scope.row.bgcolor"></div>
-              <span class="normal">{{scope.row.bgcolor|colorFilter}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="size"
-            label="操作"
-            width="280"
-            align="center">
-            <template slot="header" slot-scope="scope">
-              <span class="headTitle" :key="scope.name">操作</span>
-            </template>
-            <template slot-scope="scope">
-              <span :name="scope.row.applicationtitle" class="opration opration5" @click="cancelModel(scope.row.pictureid,1)">取消删除</span>
-              <span v-if="role" :name="scope.row.applicationtitle" class="opration opration6" @click="removeModel(scope.row.pictureid)">彻底删除</span>
+              <!-- 删除操作只有待添加状态有 -->
+              <span v-if="types==='待添加'" :name="scope.row.name" class="opration opration3" @click="deleteModel(scope.row.pictureid)">删除</span>
+              <!-- 取消添加只有已添加状态有 -->
+              <span v-if="types==='已添加'"  :name="scope.row.applicationtitle" class="opration" :class="{'opration4':role}" @click="cancelModel(scope.row.pictureid,0)">取消添加</span>
+              <!-- 取消删除和彻底删除只有已删除状态有 -->
+              <span v-if="types==='已删除'" :name="scope.row.applicationtitle" class="opration opration5" @click="cancelModel(scope.row.pictureid,1)">取消删除</span>
+              <span v-if="role&&types==='已删除'" :name="scope.row.applicationtitle" class="opration opration6" @click="removeModel(scope.row.pictureid)">彻底删除</span>
             </template>
           </el-table-column>
         </el-table>
@@ -344,20 +190,20 @@
                 <span>大小：</span>
               </div>
               <div class="imgCtn">
-                <div class="boxCtn" :class="{'active':newPatch.drag === 'drag1'}">
+                <div class="boxCtn" :class="{'active':newPatch.picturesize === 'sizes'}">
                   <img src="@/assets/image/pic_icon_small.png"/>
-                  <span @click="newPatch.drag='drag1'">小</span>
-                  <i class="circle" @click="newPatch.drag='drag1'"></i>
+                  <span @click="newPatch.picturesize='sizes'">小</span>
+                  <i class="circle" @click="newPatch.picturesize='sizes'"></i>
                 </div>
-                <div class="boxCtn" :class="{'active':newPatch.drag === 'drag2'}">
+                <div class="boxCtn" :class="{'active':newPatch.picturesize === 'sizem'}">
                   <img src="@/assets/image/pic_icon_middle.png"/>
-                  <span @click="newPatch.drag='drag2'">中</span>
-                  <i class="circle" @click="newPatch.drag='drag2'"></i>
+                  <span @click="newPatch.picturesize='sizem'">中</span>
+                  <i class="circle" @click="newPatch.picturesize='sizem'"></i>
                 </div>
-                <div class="boxCtn" :class="{'active':newPatch.drag === 'drag3'}">
+                <div class="boxCtn" :class="{'active':newPatch.picturesize === 'sizel'}">
                   <img src="@/assets/image/pic_icon_big.png"/>
-                  <span @click="newPatch.drag='drag3'">大</span>
-                  <i class="circle" @click="newPatch.drag='drag3'"></i>
+                  <span @click="newPatch.picturesize='sizel'">大</span>
+                  <i class="circle" @click="newPatch.picturesize='sizel'"></i>
                 </div>
               </div>
             </div>
@@ -461,14 +307,14 @@
                     <el-upload
                       class="upload-demo"
                       action=""
-                      accept="image/jpeg,image/png"
+                      :accept="'image/jpeg,image/png'"
                       :auto-upload="false"
-                      :show-file-list="true"
+                      :show-file-list="false"
                       :on-change="fileChange"
                       :file-list="fileList"
                       >
                       <el-button size="small" type="primary" icon="el-icon-picture">选择图片</el-button>
-                      <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过100kb</div>
+                      <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过2Mb</div>
                       <div slot="tip" class="el-upload__tip">最佳尺寸：150像素*150像素</div>
                     </el-upload>
                   </div>
@@ -518,8 +364,8 @@ import { Message } from 'element-ui'
 export default {
   data () {
     return {
-      types: '待添加',
-      showWhich: '图标库',
+      types: '待添加', // 展示哪个table
+      showWhich: '图标库', // 编辑/新建状态下选择显示自定义/图标库
       step: 1, // 添加贴片的步骤
       fileList: [],
       createFlag: false, // 是否展示编辑/新增贴片
@@ -537,8 +383,8 @@ export default {
       newPatch: {
         photo: '', // 保存base64
         picturetype: 'icon', // 类型
-        drag: 'drag1', // 大小
-        bgcolor: 'bg-blue',
+        picturesize: 'sizes', // 大小
+        bgcolor: 'bg-blue', // 背景默认蓝色
         enable: true,
         applicationtitle: '',
         applicationurl: '',
@@ -553,9 +399,9 @@ export default {
   filters: {
     sizeFilter (val) {
       let map = {
-        'drag1': '小',
-        'drag2': '中',
-        'drag3': '大'
+        'sizes': '小',
+        'sizem': '中',
+        'sizel': '大'
       }
       return map[val]
     },
@@ -589,7 +435,26 @@ export default {
   computed: {
     stepTitle () {
       let map = ['新建贴片--样式选择', '新建贴片--基本信息', '新建贴片--展示信息', '新建贴片--基本信息']
-      return map[this.step - 1]
+      let map2 = ['编辑贴片--基本信息', '编辑贴片--展示信息', '编辑贴片--基本信息']
+      let str = ''
+      // 判断是否编辑贴片，展示的提示信息不同
+      if (this.editFlag) {
+        str = map2[this.step - 2]
+      } else {
+        str = map[this.step - 1]
+      }
+      return str
+    },
+    showWhichList () {
+      let list = []
+      if (this.types === '待添加') {
+        list = this.toAddList
+      } else if (this.types === '已添加') {
+        list = this.addedList
+      } else if (this.types === '已删除') {
+        list = this.deletedList
+      }
+      return list
     }
   },
   methods: {
@@ -635,17 +500,39 @@ export default {
       var dataURL = canvas.toDataURL('image/' + ext)
       return dataURL
     },
+    // 图片上传大小格式限制
+    beforeAvatarUpload (file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isLt2M = file.size / 1024 / 1024 < 2
+      console.log(isJPG, isLt2M)
+      if (!isJPG) {
+        this.$message.error('上传图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
+    },
     // 文件上传
     fileChange (file, fileList) {
-      let _this = this
-      this.newPatch.selfPhoto = URL.createObjectURL(file.raw)
-      let reader = new FileReader()
-      reader.onload = () => {
-        let _base64 = reader.result
-        _this.newPatch.selfBase64 = _base64
-        console.log(_base64)
+      const isJPG = file.raw.type === 'image/jpeg' || file.raw.type === 'image/png'
+      const isLt2M = file.size / 1024 / 1024 < 2
+      if (!isJPG) {
+        this.$message.error('上传图片只能是 JPG/PNG 格式!')
       }
-      reader.readAsDataURL(file.raw)
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 2MB!')
+      }
+      if (isJPG && isLt2M) {
+        let _this = this
+        this.newPatch.selfPhoto = URL.createObjectURL(file.raw)
+        let reader = new FileReader()
+        reader.onload = () => {
+          let _base64 = reader.result
+          _this.newPatch.selfBase64 = _base64
+        }
+        reader.readAsDataURL(file.raw)
+      }
     },
     // 数据初始化
     initData () {
@@ -757,24 +644,32 @@ export default {
     // 点击下一步/完成
     next () {
       let _this = this
+      let newPatch = this.newPatch
+      // 如果不是最后一步
       if (this.step !== 4) {
-        this.step++
+        // 第二步验证必填项是否为空
+        if (this.step === 2) {
+          if (newPatch.applicationtitle === '' || this.realTitle === false) {
+            Message({
+              type: 'error',
+              message: '请填写正确的应用标题',
+              duration: 2000
+            })
+          } else if (newPatch.applicationurl === '' || this.realUrl === false) {
+            Message({
+              type: 'error',
+              message: '请填写正确的应用地址',
+              duration: 2000
+            })
+          } else {
+            this.step++
+          }
+        } else {
+          this.step++
+        }
       } else {
-      // 先判断必填项是否为空
-        let newPatch = this.newPatch
-        if (newPatch.applicationtitle === '') {
-          Message({
-            type: 'error',
-            message: '请先填写应用标题',
-            duration: 2000
-          })
-        } else if (newPatch.applicationurl === '') {
-          Message({
-            type: 'error',
-            message: '请先填写应用地址',
-            duration: 2000
-          })
-        } else if (newPatch.roles.length === 0) {
+      // 提交之前先验证必填项是否为空
+        if (newPatch.roles.length === 0) {
           Message({
             type: 'error',
             message: '请选择可见角色',
@@ -783,22 +678,21 @@ export default {
         } else {
           // 先处理部分数据
           newPatch.enable = newPatch.enable === true ? 1 : 0
-          if (newPatch.drag === 'drag1') {
-            newPatch.picturetype = 'style-' + newPatch.picturetype + '-m'
-          } else if (newPatch.drag === 'drag2') {
-            newPatch.picturetype = 'style-' + newPatch.picturetype + '-l'
-          } else {
-            newPatch.picturetype = 'style-' + newPatch.picturetype + '-xl'
-          }
+          newPatch.picturetype = 'style-' + newPatch.picturetype
           // 判定最后选了哪个图
           let img = ''
           if (this.showWhich === '图标库') {
             img = newPatch.photo
           } else {
-            img = newPatch.selfBase64.split(',')[1]
+            if (newPatch.selfBase64 === '') {
+              img = newPatch.photo
+            } else {
+              img = newPatch.selfBase64.split(',')[1]
+            }
           }
           // 判断是编辑还是添加
           if (this.editFlag) {
+            // 编辑接口
             editPatch({
               photo: img,
               pictureid: newPatch.pictureid,
@@ -825,10 +719,11 @@ export default {
               }
             })
           } else {
+            // 创建接口
             createPatch({
               photo: img,
               picturetype: newPatch.picturetype,
-              drag: newPatch.drag,
+              picturesize: newPatch.picturesize,
               bgcolor: newPatch.bgcolor,
               enable: newPatch.enable,
               applicationtitle: newPatch.applicationtitle,
@@ -860,9 +755,9 @@ export default {
     initWindow () {
       // 初始化一下窗口页面并关闭
       this.newPatch = {
-        photo: '', // 保存base64
+        photo: this.iconList[0].content,
         picturetype: 'icon', // 类型
-        drag: 'drag1', // 大小
+        picturesize: 'sizes', // 大小
         bgcolor: 'bg-blue',
         enable: true,
         applicationtitle: '',
@@ -873,6 +768,7 @@ export default {
         selfBase64: '',
         pictureid: ''
       }
+      this.showWhich = '图标库'
       this.createFlag = false
       this.editFlag = false
       this.step = 1
@@ -990,6 +886,10 @@ export default {
 }
 .opration .el-dropdown{
   color: #63BAFF;
+}
+
+el-upload-list el-upload-list--text{
+  display: none;
 }
 </style>
 <style lang="less" scoped>

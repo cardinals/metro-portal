@@ -21,6 +21,7 @@
 
 <script>
 import { login } from '@/api/api.js'
+import { Message } from 'element-ui'
 export default {
   data () {
     return {
@@ -38,6 +39,12 @@ export default {
         console.log(res)
         if (res.data.code === 1) {
           _this.$router.push('/home')
+        } else {
+          Message({
+            type: 'error',
+            message: '请检查用户名或密码是否正确',
+            duration: 2000
+          })
         }
       })
     }
