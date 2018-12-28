@@ -307,14 +307,14 @@
                     <el-upload
                       class="upload-demo"
                       action=""
-                      accept="image/jpeg,image/png"
+                      :accept="'image/jpeg,image/png'"
                       :auto-upload="false"
-                      :show-file-list="true"
+                      :show-file-list="false"
                       :on-change="fileChange"
                       :file-list="fileList"
                       >
                       <el-button size="small" type="primary" icon="el-icon-picture">选择图片</el-button>
-                      <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过100kb</div>
+                      <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过2Mb</div>
                       <div slot="tip" class="el-upload__tip">最佳尺寸：150像素*150像素</div>
                     </el-upload>
                   </div>
@@ -500,17 +500,39 @@ export default {
       var dataURL = canvas.toDataURL('image/' + ext)
       return dataURL
     },
+    // 图片上传大小格式限制
+    beforeAvatarUpload (file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isLt2M = file.size / 1024 / 1024 < 2
+      console.log(isJPG, isLt2M)
+      if (!isJPG) {
+        this.$message.error('上传图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
+    },
     // 文件上传
     fileChange (file, fileList) {
-      let _this = this
-      this.newPatch.selfPhoto = URL.createObjectURL(file.raw)
-      let reader = new FileReader()
-      reader.onload = () => {
-        let _base64 = reader.result
-        _this.newPatch.selfBase64 = _base64
-        console.log(_base64)
+      const isJPG = file.raw.type === 'image/jpeg' || file.type === 'image/png'
+      const isLt2M = file.size / 1024 / 1024 < 2
+      if (!isJPG) {
+        this.$message.error('上传图片只能是 JPG/PNG 格式!')
       }
-      reader.readAsDataURL(file.raw)
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 2MB!')
+      }
+      if (isJPG && isLt2M) {
+        let _this = this
+        this.newPatch.selfPhoto = URL.createObjectURL(file.raw)
+        let reader = new FileReader()
+        reader.onload = () => {
+          let _base64 = reader.result
+          _this.newPatch.selfBase64 = _base64
+        }
+        reader.readAsDataURL(file.raw)
+      }
     },
     // 数据初始化
     initData () {
@@ -859,6 +881,10 @@ export default {
 }
 .opration .el-dropdown{
   color: #63BAFF;
+}
+
+el-upload-list el-upload-list--text{
+  display: none;
 }
 </style>
 <style lang="less" scoped>
