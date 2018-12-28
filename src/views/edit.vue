@@ -45,10 +45,10 @@
           :data="showWhichList.filter(data => !search || data.applicationtitle.toLowerCase().includes(search.toLowerCase()))"
           style="width: 100%">
           <el-table-column
-            label="切片名称"
+            label="贴片名称"
             width="440">
             <template slot="header" slot-scope="scope">
-              <span style="text-align:left" class="headTitle" :key="scope.name">切片名称</span>
+              <span style="text-align:left" class="headTitle" :key="scope.name">贴片名称</span>
             </template>
             <template slot-scope="scope">
               <span class="title">{{scope.row.applicationtitle}}</span>
