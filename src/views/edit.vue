@@ -515,7 +515,7 @@ export default {
     },
     // 文件上传
     fileChange (file, fileList) {
-      const isJPG = file.raw.type === 'image/jpeg' || file.type === 'image/png'
+      const isJPG = file.raw.type === 'image/jpeg' || file.raw.type === 'image/png'
       const isLt2M = file.size / 1024 / 1024 < 2
       if (!isJPG) {
         this.$message.error('上传图片只能是 JPG/PNG 格式!')
