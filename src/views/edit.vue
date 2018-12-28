@@ -4,7 +4,7 @@
       <div class="main">
          <img src="@/assets/image/pic_logo_small.png" @click="$router.push('/home')"/>
          <div class="selfCtn">
-            <el-dropdown @command="logout">
+            <el-dropdown @command="userOprate">
               <div class="imgCtn">
                 <img class="unhover" src="@/assets/image/head.png" />
                 <img class="hover" src="@/assets/image/heads.png" />
@@ -301,9 +301,9 @@
     </div>
     <div class="footer">
       <div class="line1">
-        <span>帮助</span>
+        <!-- <span>帮助</span>
         <span>隐私</span>
-        <span>条款</span>
+        <span>条款</span> -->
       </div>
       <div class="line2">copyright©2018 银江股份</div>
     </div>
@@ -324,6 +324,7 @@
                 <i class="circle"></i>
                 <span @click="newPatch.picturetype='icon'">图标</span>
               </div>
+              <!-- 数字 数字列表 文字列表 类型暂未启用 -->
               <div class="selcet" :class="{'active':newPatch.picturetype === 'num'}">
                 <i class="circle"></i>
                 <span @click="showTips">数字</span>
@@ -901,8 +902,8 @@ export default {
       this.editFlag = true
       this.createFlag = true
     },
-    // 退出登录
-    logout () {
+    // 用户操作
+    userOprate () {
       logout().then((res) => {
         if (res.data.code === 1) {
           Message({
