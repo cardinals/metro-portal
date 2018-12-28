@@ -684,7 +684,11 @@ export default {
           if (this.showWhich === '图标库') {
             img = newPatch.photo
           } else {
-            img = newPatch.selfBase64.split(',')[1]
+            if (newPatch.selfBase64 === '') {
+              img = newPatch.photo
+            } else {
+              img = newPatch.selfBase64.split(',')[1]
+            }
           }
           // 判断是编辑还是添加
           if (this.editFlag) {
