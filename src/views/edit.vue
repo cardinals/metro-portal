@@ -764,6 +764,7 @@ export default {
         selfBase64: '',
         pictureid: ''
       }
+      this.showWhich = '图标库'
       this.createFlag = false
       this.editFlag = false
       this.step = 1
