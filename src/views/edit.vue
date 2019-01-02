@@ -807,7 +807,7 @@ export default {
             message: '注销成功',
             duration: 2000
           })
-          this.$router.push('/login')
+          location.href = res.data.data
         }
       })
     },
