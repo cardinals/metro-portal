@@ -16,6 +16,12 @@ axios.defaults.timeout = 30000
 // 请求拦截器
 axios.interceptors.request.use(
   config => {
+    // 在请求报文头部携带token信息
+    let token = ''
+    if (location.search.split('token=')[1]) {
+      token = decodeURIComponent(location.search.split('token=')[1].split('/')[0])
+    }
+    config.headers.token = token
     return config
   },
   error => {
@@ -26,7 +32,12 @@ axios.interceptors.request.use(
 // 响应拦截器
 axios.interceptors.response.use(
   response => {
-    return Promise.resolve(response)
+    if (response.data.code === 10) {
+      // 未登录||登录失效
+      location.href = response.data.data
+    } else {
+      return Promise.resolve(response)
+    }
   },
   error => {
     return Promise.reject(error.response)
