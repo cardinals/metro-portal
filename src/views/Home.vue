@@ -659,9 +659,7 @@ export default {
   mounted () {
     let _this = this
     userRole().then((res) => {
-      if (res.data.code !== 1) {
-        _this.$router.push('/login')
-      } else {
+      if (res.data.code === 1) {
         _this.role = res.data.data.role
       }
     })
