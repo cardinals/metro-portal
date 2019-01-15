@@ -27,7 +27,7 @@
           </div>
         </div>
         <div class="rightCtn">
-          <input type="text" placeholder="请输入贴片名称" v-model="search"/>
+          <el-input type="text" placeholder="请输入贴片名称" v-model="search"/>
           <img class="searchBtn" src="@/assets/image/icon_search_black.png" />
         </div>
       </div>
@@ -64,7 +64,7 @@
             :filter-method="filterHandler"
             >
             <template slot="header" slot-scope="scope">
-              <span class="headTitle" :key="scope.applicationtitle">全部大小</span>
+              <span class="headTitle" :key="scope.picturesize">全部大小</span>
             </template>
             <template slot-scope="scope">
               <span class="normal">{{scope.row.picturesize|sizeFilter}}</span>
@@ -78,7 +78,7 @@
             :filters="[{text: '图标', value: 'style-icon'},{text: '数字', value: 'style-num'},{text: '文本信息', value: 'style-text'},{text: '数字列表', value: 'style-list'}]"
             :filter-method="filterHandlerIcon">
             <template slot="header" slot-scope="scope">
-              <span class="headTitle" :key="scope.applicationtitle">全部类型</span>
+              <span class="headTitle" :key="scope.picturetype">全部类型</span>
             </template>
             <template slot-scope="scope">
               <span class="normal">{{scope.row.picturetype|typeFilter}}</span>
@@ -105,7 +105,7 @@
             width="90"
             align="center">
             <template slot="header" slot-scope="scope">
-              <span class="headTitle" :key="scope.applicationtitle">是否启用</span>
+              <span class="headTitle" :key="scope.applicationenable">是否启用</span>
             </template>
             <template slot-scope="scope">
               <span class="normal">{{scope.row.applicationenable|addFilter}}</span>
@@ -241,7 +241,7 @@
                 <span>系统名称：</span>
               </div>
               <div class="inputCtn" :class="{'errorTitle':!realTitle}">
-                <input placeholder="请输入系统名称(必填项)" type="text" v-model="newPatch.applicationtitle" @blur="checkTitle()"/>
+                <el-input placeholder="请输入系统名称(必填项)" type="text" v-model="newPatch.applicationtitle" @blur="checkTitle()"/>
               </div>
             </div>
             <div class="line line4">
@@ -250,7 +250,7 @@
                 <span>系统地址：</span>
               </div>
               <div class="inputCtn address" :class="{'errorUrl':!realUrl}">
-                <input placeholder="请输入系统地址(必填项)" type="text" v-model="newPatch.applicationurl" @blur="checkUrl('applicationurl')"/>
+                <el-input placeholder="请输入系统地址(必填项)" type="text" v-model="newPatch.applicationurl" @blur="checkUrl('applicationurl')"/>
                 <div class="btn" @click="openUrl(newPatch.applicationurl)">测试</div>
               </div>
             </div>
@@ -260,7 +260,7 @@
                 <span>系统简介：</span>
               </div>
               <div class="inputCtn">
-                <input placeholder="请输入对于系统的介绍说明" type="text" v-model="newPatch.applicationdescribe"/>
+                <el-input placeholder="请输入对于系统的介绍说明" type="text" v-model="newPatch.applicationdescribe"/>
               </div>
             </div>
             <div class="line line4">
@@ -282,22 +282,27 @@
                 <span>API地址：</span>
               </div>
               <div class="inputCtn address" :class="{'errorUrl':!realApi}">
-                <input placeholder="填写内容接口(必填项)" type="text" v-model="newPatch.apiurl" @blur="checkUrl('apiurl')"/>
+                <el-input placeholder="填写内容接口(必填项)" type="text" v-model="newPatch.apiurl" @blur="checkUrl('apiurl')"/>
                 <div class="btn" @click="openUrl(newPatch.apiurl)">测试</div>
               </div>
             </div>
           </div>
-          <div class="wContent" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype!=='style-icon'">
-            <div class="line line4" v-if="newPatch.picturetype ==='style-num'">
+          <div class="wContent" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-num'">
+            <div class="line">
+              <span>填写说明：</span>
+              <div></div>
+              <span>{{'收起'}} <i class="el-icon-arrow-up"></i></span>
+            </div>
+            <div class="line line4">
               <div class="info">
                 <em>*</em>
                 <span>内容标题：</span>
               </div>
               <div class="inputCtn">
-                <input placeholder="填写字段名称" v-model="newPatch.contentdata[0].title" type="text"/>
+                <el-input placeholder="填写字段名称" v-model="newPatch.contentdata[0].title" type="text"/>
               </div>
             </div>
-            <div class="line line4" v-if="newPatch.picturetype ==='style-num'">
+            <div class="line line4">
               <div class="info">
                 <em>*</em>
                 <span>内容字段：</span>
@@ -306,6 +311,50 @@
                 <el-select v-model="newPatch.contentdata[0].filedkey" placeholder="请选择">
                   <el-option v-for="(item,index) in apiContent" :key="index" :label="item.keyname" :value="item.keyname"></el-option>
                 </el-select>
+              </div>
+            </div>
+          </div>
+          <div class="wContent" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-text'">
+            <div class="line line4">
+              <div class="info">
+                <em>*</em>
+                <span>时间类型：</span>
+              </div>
+              <div class="inputCtn">
+                <el-input placeholder="填写字段名称" v-model="newPatch.contentdata[0].title" type="text" disabled/>
+              </div>
+            </div>
+            <div class="line line4">
+              <div class="info">
+                <em>*</em>
+                <span>内容类型：</span>
+              </div>
+              <div class="inputCtn">
+                <el-input placeholder="填写字段名称" v-model="newPatch.contentdata[0].filedkey" type="text" disabled/>
+              </div>
+            </div>
+          </div>
+          <div class="wContent" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-list'">
+            <div class="line line4" v-for="(item,index) in newPatch.contentdata" :key="`title${index}`">
+              <div class="info">
+                <em>*</em>
+                <span>内容标题：</span>
+              </div>
+              <div class="inputCtn">
+                <el-input placeholder="填写字段名称" v-model="item.title" type="text"/>
+              </div>
+              <div class="info">
+                <em>*</em>
+                <span>内容字段：</span>
+              </div>
+              <div class="inputCtn">
+                <el-select v-model="item.filedkey" placeholder="请选择">
+                  <el-option v-for="(item2,index2) in apiContent" :key="`option${index2}`" :label="item2.keyname" :value="item2.keyname"></el-option>
+                </el-select>
+                <i class="el-icon-plus" @click="addContent(index)" v-if="newPatch.contentdata.length<=5"></i>
+                <i class="el-icon-minus" @click="removeContent(index)" v-if="!(index===0&&newPatch.contentdata.length===1)"></i>
+                <i class="el-icon-upload2" @click="upContent(index)" v-if="index!==0"></i>
+                <i class="el-icon-download" @click="downContent(index)" v-if="index!==newPatch.contentdata.length-1"></i>
               </div>
             </div>
           </div>
@@ -391,9 +440,8 @@
   </div>
 </template>
 <script>
-import { patchList, deletePatch, cancelPatch, addPatch, removePatch, roleAndIcon, createPatch, editPatch, logout, userRole, validationTitle } from '@/api/api.js'
+import { patchList, deletePatch, cancelPatch, addPatch, removePatch, roleAndIcon, createPatch, editPatch, logout, userRole, validationTitle, validationApiInfo } from '@/api/api.js'
 import { Message } from 'element-ui'
-import http from '@/plugins/axios.js'
 export default {
   data () {
     return {
@@ -457,14 +505,13 @@ export default {
       return map[val]
     },
     typeFilter (val) {
-      let arr = val.split('-')
       let map = {
         'style-num': '数字',
         'style-text': '文本',
         'style-icon': '图标',
         'style-list': '数字列表'
       }
-      return map[arr[1]]
+      return map[val]
     },
     colorFilter (val) {
       let map = {
@@ -637,6 +684,26 @@ export default {
       })
       this.initData()
     },
+    // 添加列表字段
+    addContent (index) {
+      this.newPatch.contentdata.splice(index + 1, 0, { title: '', filedkey: '', filedsort: index + 2 })
+    },
+    // 删除列表字段
+    removeContent (index) {
+      this.newPatch.contentdata.splice(index, 1)
+    },
+    // 上移列表字段
+    upContent (index) {
+      let temp = this.newPatch.contentdata[index]
+      this.$set(this.newPatch.contentdata, index, this.newPatch.contentdata[index - 1])
+      this.$set(this.newPatch.contentdata, index - 1, temp)
+    },
+    // 下移列表字段
+    downContent (index) {
+      let temp = this.newPatch.contentdata[index]
+      this.$set(this.newPatch.contentdata, index, this.newPatch.contentdata[index + 1])
+      this.$set(this.newPatch.contentdata, index + 1, temp)
+    },
     // 点击下一步/完成
     async next () {
       let newPatch = this.newPatch
@@ -660,17 +727,33 @@ export default {
             this.realApi = false
             return ''
           }
-          let res = await http.get(newPatch.apiurl)
-          this.apiContent = res.data.code === 1 ? res.data.data : ''
+          let res = await validationApiInfo({ apiurl: newPatch.apiurl })
+          if (res.data.code === 1) {
+            if (newPatch.picturetype === 'style-num' || newPatch.picturetype === 'style-list') {
+              this.apiContent = res.data.data
+            }
+            if (newPatch.picturetype === 'style-text') {
+              newPatch.contentdata[0].title = 'time'
+              newPatch.contentdata[0].filedkey = 'content'
+            }
+          } else {
+            Message({
+              type: 'error',
+              message: res.data.message,
+              duration: 2000
+            })
+            return ''
+          }
         }
         this.step++
         return ''
       }
-      // 第二步验证必填项是否为空
+      // 第三步
       if (this.step === 3) {
         this.step++
         return ''
       }
+      // 第四步
       if (this.step === 4) {
         // 提交之前先验证必填项是否为空
         if (newPatch.roles.length === 0) {
@@ -687,6 +770,7 @@ export default {
         let img = this.showWhich === '图标库' ? newPatch.photo : newPatch.selfBase64 === '' ? newPatch.photo : newPatch.selfBase64.split(',')[1]
         let editParams = {
           photo: img,
+          picturetype: newPatch.picturetype,
           pictureid: newPatch.pictureid,
           enable: newPatch.enable,
           applicationtitle: newPatch.applicationtitle,
@@ -739,7 +823,9 @@ export default {
         pictureid: '',
         apiurl: '',
         refreshflag: 1,
-        contentdata: []
+        contentdata: [
+          { title: '', filedkey: '', filedsort: 1 }
+        ]
       }
       this.showWhich = '图标库'
       this.createFlag = false
@@ -748,7 +834,7 @@ export default {
       this.realUrl = true
       this.realTitle = true
       this.realApi = true
-      this.apiContent = ''
+      this.apiContent = []
     },
     // 选择贴片样式时的提示信息
     showTips () {
@@ -762,9 +848,13 @@ export default {
     editModel (info) {
       if (info.picturetype === 'style-icon') {
         this.newPatch.photo = info.picturecontent
-      } else {
+      }
+      if (info.picturetype === 'style-list' || info.picturetype === 'style-num') {
         this.newPatch.apiurl = info.picturecontent.apiurl
         this.newPatch.contentdata = info.picturecontent.contentdata
+      }
+      if (info.picturetype === 'style-text') {
+        this.newPatch.apiurl = info.picturecontent.apiurl
       }
       this.newPatch.picturetype = info.picturetype
       this.newPatch.pictureid = info.pictureid
