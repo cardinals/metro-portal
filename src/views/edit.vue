@@ -75,7 +75,7 @@
             label="全部类型"
             width="120"
             align="center"
-            :filters="[{text: '图标', value: 'icon'},{text: '数字', value: 'num'},{text: '文本信息', value: 'text'},{text: '数字列表', value: 'list'}]"
+            :filters="[{text: '图标', value: 'style-icon'},{text: '数字', value: 'style-num'},{text: '文本信息', value: 'style-text'},{text: '数字列表', value: 'style-list'}]"
             :filter-method="filterHandlerIcon">
             <template slot="header" slot-scope="scope">
               <span class="headTitle" :key="scope.applicationtitle">全部类型</span>
@@ -166,22 +166,22 @@
                 <em>*</em>
                 <span>类型：</span>
               </div>
-              <div class="selcet" :class="{'active':newPatch.picturetype === 'icon'}">
+              <div class="selcet" :class="{'active':newPatch.picturetype === 'style-icon'}">
                 <i class="circle"></i>
-                <span @click="newPatch.picturetype='icon'">图标</span>
+                <span @click="newPatch.picturetype='style-icon'">图标</span>
               </div>
               <!-- 数字 数字列表 文字列表 类型暂未启用 -->
-              <div class="selcet" :class="{'active':newPatch.picturetype === 'num'}">
+              <div class="selcet" :class="{'active':newPatch.picturetype === 'style-num'}">
                 <i class="circle"></i>
-                <span @click="showTips">数字</span>
+                <span @click="newPatch.picturetype='style-num'">数字</span>
               </div>
-              <div class="selcet" :class="{'active':newPatch.picturetype === 'list'}">
+              <div class="selcet" :class="{'active':newPatch.picturetype === 'style-list'}">
                 <i class="circle"></i>
-                <span @click="showTips">数字列表</span>
+                <span @click="newPatch.picturetype='style-list'">数字列表</span>
               </div>
-              <div class="selcet" :class="{'active':newPatch.picturetype === 'text'}">
+              <div class="selcet" :class="{'active':newPatch.picturetype === 'style-text'}">
                 <i class="circle"></i>
-                <span @click="showTips">文字列表</span>
+                <span @click="newPatch.picturetype='style-text'">文字列表</span>
               </div>
             </div>
             <div class="line line2">
@@ -190,7 +190,7 @@
                 <span>大小：</span>
               </div>
               <div class="imgCtn">
-                <div class="boxCtn" :class="{'active':newPatch.picturesize === 'sizes'}">
+                <div class="boxCtn" :class="{'active':newPatch.picturesize === 'sizes'}" v-if="newPatch.picturetype==='style-icon'||newPatch.picturetype==='style-num'">
                   <img src="@/assets/image/pic_icon_small.png"/>
                   <span @click="newPatch.picturesize='sizes'">小</span>
                   <i class="circle" @click="newPatch.picturesize='sizes'"></i>
@@ -250,8 +250,8 @@
                 <span>系统地址：</span>
               </div>
               <div class="inputCtn address" :class="{'errorUrl':!realUrl}">
-                <input placeholder="请输入系统地址(必填项)" type="text" v-model="newPatch.applicationurl" @blur="testUrl"/>
-                <div class="btn" @click="openUrl">测试</div>
+                <input placeholder="请输入系统地址(必填项)" type="text" v-model="newPatch.applicationurl" @blur="testUrl('applicationurl')"/>
+                <div class="btn" @click="openUrl(newPatch.applicationurl)">测试</div>
               </div>
             </div>
             <div class="line line4">
@@ -276,8 +276,40 @@
                 </el-switch>
               </div>
             </div>
+            <div class="line line4" v-if="newPatch.picturetype!=='style-icon'">
+              <div class="info">
+                <em>*</em>
+                <span>API地址：</span>
+              </div>
+              <div class="inputCtn address" :class="{'errorUrl':!realApi}">
+                <input placeholder="填写内容接口(必填项)" type="text" v-model="newPatch.apiurl" @blur="testUrl('apiurl')"/>
+                <div class="btn" @click="openUrl(newPatch.apiurl)">测试</div>
+              </div>
+            </div>
           </div>
-          <div class="wContent" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}">
+          <div class="wContent" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype!=='style-icon'">
+            <div class="line line4" v-if="newPatch.picturetype ==='style-num'">
+              <div class="info">
+                <em>*</em>
+                <span>内容标题：</span>
+              </div>
+              <div class="inputCtn">
+                <input placeholder="填写字段名称" v-model="newPatch.contentdata[0].title" type="text"/>
+              </div>
+            </div>
+            <div class="line line4" v-if="newPatch.picturetype ==='style-num'">
+              <div class="info">
+                <em>*</em>
+                <span>内容字段：</span>
+              </div>
+              <div class="inputCtn">
+                <el-select v-model="newPatch.contentdata[0].filedkey" placeholder="请选择">
+                  <el-option v-for="(item,index) in apiContent" :key="index" :label="item.keyname" :value="item.keyname"></el-option>
+                </el-select>
+              </div>
+            </div>
+          </div>
+          <div class="wContent" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-icon'">
             <div class="iconCtn">
               <div class="btnCtn">
                 <span class="btn" :class="{'active':showWhich==='图标库'}" @click="showWhich='图标库'">图标库
@@ -361,6 +393,7 @@
 <script>
 import { patchList, deletePatch, cancelPatch, addPatch, removePatch, roleAndIcon, createPatch, editPatch, logout, userRole, validationTitle } from '@/api/api.js'
 import { Message } from 'element-ui'
+import http from '@/plugins/axios.js'
 export default {
   data () {
     return {
@@ -379,10 +412,11 @@ export default {
       role: false,
       realUrl: true, // 判断输入的网址是否为真
       realTitle: true, // 判断输入标题是否正确
+      realApi: true, // 判断输入Api地址是否正确
       search: '', // 搜索
       newPatch: {
         photo: '', // 保存base64
-        picturetype: 'icon', // 类型
+        picturetype: 'style-icon', // 类型
         picturesize: 'sizes', // 大小
         bgcolor: 'bg-blue', // 背景默认蓝色
         enable: true,
@@ -392,8 +426,25 @@ export default {
         roles: [],
         selfPhoto: require('@/assets/image/defPhoto.png'),
         selfBase64: '',
-        pictureid: ''
-      } // 新增贴片信息
+        pictureid: '',
+        apiurl: '',
+        refreshflag: 1,
+        contentdata: [
+          { title: '', filedkey: '', filedsort: 1 }
+        ]
+      }, // 新增贴片信息
+      apiContent: ''
+    }
+  },
+  watch: {
+    // 磁贴类型变化时，修改磁贴的默认大小
+    'newPatch.picturetype': function (newvalue, oldvalue) {
+      if (newvalue === 'style-list' || newvalue === 'style-text') {
+        this.newPatch.picturesize = 'sizem'
+      }
+      if (newvalue === 'style-icon' || newvalue === 'style-num') {
+        this.newPatch.picturesize = 'sizes'
+      }
     }
   },
   filters: {
@@ -408,10 +459,10 @@ export default {
     typeFilter (val) {
       let arr = val.split('-')
       let map = {
-        'num': '数字',
-        'text': '文本',
-        'icon': '图标',
-        'list': '数字列表'
+        'style-num': '数字',
+        'style-text': '文本',
+        'style-icon': '图标',
+        'style-list': '数字列表'
       }
       return map[arr[1]]
     },
@@ -504,7 +555,6 @@ export default {
     beforeAvatarUpload (file) {
       const isJPG = file.type === 'image/jpeg'
       const isLt2M = file.size / 1024 / 1024 < 2
-      console.log(isJPG, isLt2M)
       if (!isJPG) {
         this.$message.error('上传图片只能是 JPG 格式!')
       }
@@ -543,7 +593,6 @@ export default {
         _this.addedList = data.addedList
         _this.deletedList = data.deletedList
         _this.toAddList = data.toAddList
-        console.log(res)
       })
     },
     // 删除贴片
@@ -642,112 +691,119 @@ export default {
       })
     },
     // 点击下一步/完成
-    next () {
+    async next () {
       let _this = this
       let newPatch = this.newPatch
-      // 如果不是最后一步
-      if (this.step !== 4) {
-        // 第二步验证必填项是否为空
-        if (this.step === 2) {
-          if (newPatch.applicationtitle === '' || this.realTitle === false) {
-            Message({
-              type: 'error',
-              message: '请填写正确的应用标题',
-              duration: 2000
-            })
-          } else if (newPatch.applicationurl === '' || this.realUrl === false) {
-            Message({
-              type: 'error',
-              message: '请填写正确的应用地址',
-              duration: 2000
-            })
-          } else {
-            this.step++
-          }
-        } else {
-          this.step++
+      // 第一步
+      if (this.step === 1) {
+        this.step++
+        return ''
+      }
+      // 第二步验证必填项是否为空
+      if (this.step === 2) {
+        if (newPatch.applicationtitle === '' || this.realTitle === false) {
+          Message({
+            type: 'error',
+            message: '请填写正确的应用标题',
+            duration: 2000
+          })
+          return ''
         }
-      } else {
-      // 提交之前先验证必填项是否为空
+        if (newPatch.applicationurl === '' || this.realUrl === false) {
+          Message({
+            type: 'error',
+            message: '请填写正确的应用地址',
+            duration: 2000
+          })
+          return ''
+        }
+        if (newPatch.picturetype !== 'style-icon') {
+          if (newPatch.apiurl === '' || this.realApi === false) {
+            Message({
+              type: 'error',
+              message: '请填写正确的内容接口地址',
+              duration: 2000
+            })
+            return ''
+          }
+          let res = await http.get(newPatch.apiurl)
+          this.apiContent = res.data.code === 1 ? res.data.data : ''
+        }
+        this.step++
+        return ''
+      }
+      // 第二步验证必填项是否为空
+      if (this.step === 3) {
+        this.step++
+        return ''
+      }
+      if (this.step === 4) {
+        // 提交之前先验证必填项是否为空
         if (newPatch.roles.length === 0) {
           Message({
             type: 'error',
             message: '请选择可见角色',
             duration: 2000
           })
+          return ''
+        }
+        // 先处理部分数据
+        newPatch.enable = newPatch.enable === true ? 1 : 0
+        newPatch.picturetype = 'style-' + newPatch.picturetype
+        // 判定最后选了哪个图
+        let img = ''
+        if (this.showWhich === '图标库') {
+          img = newPatch.photo
         } else {
-          // 先处理部分数据
-          newPatch.enable = newPatch.enable === true ? 1 : 0
-          newPatch.picturetype = 'style-' + newPatch.picturetype
-          // 判定最后选了哪个图
-          let img = ''
-          if (this.showWhich === '图标库') {
-            img = newPatch.photo
-          } else {
-            if (newPatch.selfBase64 === '') {
-              img = newPatch.photo
-            } else {
-              img = newPatch.selfBase64.split(',')[1]
-            }
-          }
-          // 判断是编辑还是添加
-          if (this.editFlag) {
-            // 编辑接口
-            editPatch({
-              photo: img,
-              pictureid: newPatch.pictureid,
-              enable: newPatch.enable,
-              applicationtitle: newPatch.applicationtitle,
-              applicationurl: newPatch.applicationurl,
-              applicationdescribe: newPatch.applicationdescribe,
-              roles: newPatch.roles
-            }).then((res) => {
-              if (res.data.code === 1) {
-                Message({
-                  type: 'success',
-                  message: res.data.message,
-                  duration: 2000
-                })
-                _this.initData()
-                _this.initWindow()
-              } else {
-                Message({
-                  type: 'error',
-                  message: '编辑失败，请联系管理员',
-                  duration: 2000
-                })
-              }
-            })
-          } else {
-            // 创建接口
-            createPatch({
-              photo: img,
-              picturetype: newPatch.picturetype,
-              picturesize: newPatch.picturesize,
-              bgcolor: newPatch.bgcolor,
-              enable: newPatch.enable,
-              applicationtitle: newPatch.applicationtitle,
-              applicationurl: newPatch.applicationurl,
-              applicationdescribe: newPatch.applicationdescribe,
-              roles: newPatch.roles
-            }).then((res) => {
-              if (res.data.code === 1) {
-                Message({
-                  type: 'success',
-                  message: res.data.message,
-                  duration: 2000
-                })
-                _this.initData()
-                _this.initWindow()
-              } else {
-                Message({
-                  type: 'error',
-                  message: '创建失败，请联系管理员',
-                  duration: 2000
-                })
-              }
-            })
-          }
+          img = newPatch.selfBase64 === '' ? newPatch.photo : newPatch.selfBase64.split(',')[1]
+        }
+        let res = ''
+        // 判断是编辑还是添加
+        if (this.editFlag) {
+          // 编辑接口
+          res = await editPatch({
+            photo: img,
+            pictureid: newPatch.pictureid,
+            enable: newPatch.enable,
+            applicationtitle: newPatch.applicationtitle,
+            applicationurl: newPatch.applicationurl,
+            applicationdescribe: newPatch.applicationdescribe,
+            roles: newPatch.roles,
+            refreshflag: 1,
+            apiurl: newPatch.apiurl,
+            contentdata: newPatch.contentdata
+          })
+        } else {
+          // 创建接口
+          res = await createPatch({
+            photo: img,
+            picturetype: newPatch.picturetype,
+            picturesize: newPatch.picturesize,
+            bgcolor: newPatch.bgcolor,
+            enable: newPatch.enable,
+            applicationtitle: newPatch.applicationtitle,
+            applicationurl: newPatch.applicationurl,
+            applicationdescribe: newPatch.applicationdescribe,
+            roles: newPatch.roles,
+            refreshflag: 1,
+            apiurl: newPatch.apiurl,
+            contentdata: newPatch.contentdata
+          })
+        }
+        if (res.data.code === 1) {
+          Message({
+            type: 'success',
+            message: res.data.message,
+            duration: 2000
+          })
+          _this.initData()
+          _this.initWindow()
+        } else {
+          Message({
+            type: 'error',
+            message: res.data.message,
+            duration: 2000
+          })
         }
       }
     },
@@ -756,7 +812,7 @@ export default {
       // 初始化一下窗口页面并关闭
       this.newPatch = {
         photo: this.iconList[0].content,
-        picturetype: 'icon', // 类型
+        picturetype: 'style-icon', // 类型
         picturesize: 'sizes', // 大小
         bgcolor: 'bg-blue',
         enable: true,
@@ -766,7 +822,10 @@ export default {
         roles: [],
         selfPhoto: require('@/assets/image/defPhoto.png'),
         selfBase64: '',
-        pictureid: ''
+        pictureid: '',
+        apiurl: '',
+        refreshflag: 1,
+        contentdata: []
       }
       this.showWhich = '图标库'
       this.createFlag = false
@@ -774,6 +833,8 @@ export default {
       this.step = 1
       this.realUrl = true
       this.realTitle = true
+      this.realApi = true
+      this.apiContent = ''
     },
     // 选择贴片样式时的提示信息
     showTips () {
@@ -785,7 +846,14 @@ export default {
     },
     // 编辑贴片
     editModel (info) {
-      this.newPatch.photo = info.picturecontent
+      console.log(info)
+      if (info.picturetype === 'style-icon') {
+        this.newPatch.photo = info.picturecontent
+      } else {
+        this.newPatch.apiurl = info.picturecontent.apiurl
+        this.newPatch.contentdata = info.picturecontent.contentdata
+      }
+      this.newPatch.picturetype = info.picturetype
       this.newPatch.pictureid = info.pictureid
       this.newPatch.enable = info.applicationenable === 1
       this.newPatch.applicationtitle = info.applicationtitle
@@ -812,12 +880,17 @@ export default {
       })
     },
     // 打开链接
-    openUrl () {
-      window.open(this.newPatch.applicationurl)
+    openUrl (url) {
+      window.open(url)
     },
-    testUrl () {
+    testUrl (type) {
       let reg = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-.,@?^=%&amp;:/~+#]*[\w\-@?^=%&amp;/~+#])?/
-      this.realUrl = reg.test(this.newPatch.applicationurl)
+      if (type === 'applicationurl') {
+        this.realUrl = reg.test(this.newPatch.applicationurl)
+      }
+      if (type === 'apiurl') {
+        this.realApi = reg.test(this.newPatch.apiurl)
+      }
     },
     testTitle () {
       let _this = this
