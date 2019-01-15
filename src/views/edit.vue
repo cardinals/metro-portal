@@ -241,7 +241,7 @@
                 <span>系统名称：</span>
               </div>
               <div class="inputCtn" :class="{'errorTitle':!realTitle}">
-                <input placeholder="请输入系统名称(必填项)" type="text" v-model="newPatch.applicationtitle" @blur="testTitle"/>
+                <input placeholder="请输入系统名称(必填项)" type="text" v-model="newPatch.applicationtitle" @blur="checkTitle()"/>
               </div>
             </div>
             <div class="line line4">
@@ -250,7 +250,7 @@
                 <span>系统地址：</span>
               </div>
               <div class="inputCtn address" :class="{'errorUrl':!realUrl}">
-                <input placeholder="请输入系统地址(必填项)" type="text" v-model="newPatch.applicationurl" @blur="testUrl('applicationurl')"/>
+                <input placeholder="请输入系统地址(必填项)" type="text" v-model="newPatch.applicationurl" @blur="checkUrl('applicationurl')"/>
                 <div class="btn" @click="openUrl(newPatch.applicationurl)">测试</div>
               </div>
             </div>
@@ -282,7 +282,7 @@
                 <span>API地址：</span>
               </div>
               <div class="inputCtn address" :class="{'errorUrl':!realApi}">
-                <input placeholder="填写内容接口(必填项)" type="text" v-model="newPatch.apiurl" @blur="testUrl('apiurl')"/>
+                <input placeholder="填写内容接口(必填项)" type="text" v-model="newPatch.apiurl" @blur="checkUrl('apiurl')"/>
                 <div class="btn" @click="openUrl(newPatch.apiurl)">测试</div>
               </div>
             </div>
@@ -585,114 +585,60 @@ export default {
       }
     },
     // 数据初始化
-    initData () {
-      let _this = this
-      patchList().then((res) => {
-        let data = res.data.data
-        _this.modelArr = data.groupList
-        _this.addedList = data.addedList
-        _this.deletedList = data.deletedList
-        _this.toAddList = data.toAddList
-      })
-    },
-    // 删除贴片
-    deleteModel (id) {
-      let _this = this
-      deletePatch({
-        pictureid: id
-      }).then((res) => {
-        if (res.data.code === 1) {
-          Message({
-            type: 'success',
-            message: '恭喜您删除贴片成功',
-            duration: 2000
-          })
-          _this.initData()
-        } else {
-          Message({
-            type: 'error',
-            message: '删除失败，请联系管理员',
-            duration: 2000
-          })
-        }
-      })
-    },
-    // 取消删除/添加
-    cancelModel (id, status) {
-      let _this = this
-      cancelPatch({
-        pictureid: id,
-        status: status
-      }).then((res) => {
-        if (res.data.code === 1) {
-          Message({
-            type: 'success',
-            message: res.data.message,
-            duration: 2000
-          })
-          _this.initData()
-        } else {
-          Message({
-            type: 'error',
-            message: '删除失败，请联系管理员',
-            duration: 2000
-          })
-        }
-      })
-    },
-    // 添加贴片接口
-    addModel (id, modelid, modeltitle) {
-      let _this = this
-      addPatch({
-        pictureid: id,
-        modelid: modelid,
-        modeltitle: modeltitle
-      }).then((res) => {
-        if (res.data.code === 1) {
-          Message({
-            type: 'success',
-            message: res.data.message,
-            duration: 2000
-          })
-          _this.initData()
-        } else {
-          Message({
-            type: 'error',
-            message: '添加失败，请联系管理员',
-            duration: 2000
-          })
-        }
-      })
+    async initData () {
+      let res = await patchList()
+      let data = res.data.data
+      this.modelArr = data.groupList
+      this.addedList = data.addedList
+      this.deletedList = data.deletedList
+      this.toAddList = data.toAddList
     },
     // 添加贴片操作
     handleCommand (command) {
       this.addModel(command.id, command.model.id, command.model.title)
     },
-    // 彻底删除
-    removeModel (id) {
-      let _this = this
-      removePatch({
+    // 删除贴片
+    async deleteModel (id) {
+      let res = await deletePatch({
         pictureid: id
-      }).then((res) => {
-        if (res.data.code === 1) {
-          Message({
-            type: 'success',
-            message: res.data.message,
-            duration: 2000
-          })
-          _this.initData()
-        } else {
-          Message({
-            type: 'error',
-            message: '删除失败，请联系管理员',
-            duration: 2000
-          })
-        }
       })
+      this.callback(res)
+    },
+    // 彻底删除
+    async removeModel (id) {
+      let res = await removePatch({
+        pictureid: id
+      })
+      this.callback(res)
+    },
+    // 取消删除/添加
+    async cancelModel (id, status) {
+      let res = await cancelPatch({
+        pictureid: id,
+        status: status
+      })
+      this.callback(res)
+    },
+    // 添加贴片接口
+    async addModel (id, modelid, modeltitle) {
+      let res = await addPatch({
+        pictureid: id,
+        modelid: modelid,
+        modeltitle: modeltitle
+      })
+      this.callback(res)
+    },
+    // 新增/添加/取消添加/删除/彻底删除 回调函数(通知、刷新数据)
+    callback (res) {
+      Message({
+        type: res.data.code === 1 ? 'success' : 'error',
+        message: res.data.message,
+        duration: 2000
+      })
+      this.initData()
     },
     // 点击下一步/完成
     async next () {
-      let _this = this
       let newPatch = this.newPatch
       // 第一步
       if (this.step === 1) {
@@ -702,28 +648,16 @@ export default {
       // 第二步验证必填项是否为空
       if (this.step === 2) {
         if (newPatch.applicationtitle === '' || this.realTitle === false) {
-          Message({
-            type: 'error',
-            message: '请填写正确的应用标题',
-            duration: 2000
-          })
+          this.realTitle = false
           return ''
         }
         if (newPatch.applicationurl === '' || this.realUrl === false) {
-          Message({
-            type: 'error',
-            message: '请填写正确的应用地址',
-            duration: 2000
-          })
+          this.realUrl = false
           return ''
         }
         if (newPatch.picturetype !== 'style-icon') {
           if (newPatch.apiurl === '' || this.realApi === false) {
-            Message({
-              type: 'error',
-              message: '请填写正确的内容接口地址',
-              duration: 2000
-            })
+            this.realApi = false
             return ''
           }
           let res = await http.get(newPatch.apiurl)
@@ -749,62 +683,42 @@ export default {
         }
         // 先处理部分数据
         newPatch.enable = newPatch.enable === true ? 1 : 0
-        newPatch.picturetype = 'style-' + newPatch.picturetype
         // 判定最后选了哪个图
-        let img = ''
-        if (this.showWhich === '图标库') {
-          img = newPatch.photo
-        } else {
-          img = newPatch.selfBase64 === '' ? newPatch.photo : newPatch.selfBase64.split(',')[1]
+        let img = this.showWhich === '图标库' ? newPatch.photo : newPatch.selfBase64 === '' ? newPatch.photo : newPatch.selfBase64.split(',')[1]
+        let editParams = {
+          photo: img,
+          pictureid: newPatch.pictureid,
+          enable: newPatch.enable,
+          applicationtitle: newPatch.applicationtitle,
+          applicationurl: newPatch.applicationurl,
+          applicationdescribe: newPatch.applicationdescribe,
+          roles: newPatch.roles,
+          refreshflag: 1,
+          apiurl: newPatch.apiurl,
+          contentdata: newPatch.contentdata
         }
-        let res = ''
-        // 判断是编辑还是添加
-        if (this.editFlag) {
-          // 编辑接口
-          res = await editPatch({
-            photo: img,
-            pictureid: newPatch.pictureid,
-            enable: newPatch.enable,
-            applicationtitle: newPatch.applicationtitle,
-            applicationurl: newPatch.applicationurl,
-            applicationdescribe: newPatch.applicationdescribe,
-            roles: newPatch.roles,
-            refreshflag: 1,
-            apiurl: newPatch.apiurl,
-            contentdata: newPatch.contentdata
-          })
-        } else {
-          // 创建接口
-          res = await createPatch({
-            photo: img,
-            picturetype: newPatch.picturetype,
-            picturesize: newPatch.picturesize,
-            bgcolor: newPatch.bgcolor,
-            enable: newPatch.enable,
-            applicationtitle: newPatch.applicationtitle,
-            applicationurl: newPatch.applicationurl,
-            applicationdescribe: newPatch.applicationdescribe,
-            roles: newPatch.roles,
-            refreshflag: 1,
-            apiurl: newPatch.apiurl,
-            contentdata: newPatch.contentdata
-          })
+        let createParams = {
+          photo: img,
+          picturetype: newPatch.picturetype,
+          picturesize: newPatch.picturesize,
+          bgcolor: newPatch.bgcolor,
+          enable: newPatch.enable,
+          applicationtitle: newPatch.applicationtitle,
+          applicationurl: newPatch.applicationurl,
+          applicationdescribe: newPatch.applicationdescribe,
+          roles: newPatch.roles,
+          refreshflag: 1,
+          apiurl: newPatch.apiurl,
+          contentdata: newPatch.contentdata
         }
-        if (res.data.code === 1) {
-          Message({
-            type: 'success',
-            message: res.data.message,
-            duration: 2000
-          })
-          _this.initData()
-          _this.initWindow()
-        } else {
-          Message({
-            type: 'error',
-            message: res.data.message,
-            duration: 2000
-          })
-        }
+        let res = this.editFlag ? await editPatch(editParams) : await createPatch(createParams)
+        Message({
+          type: res.data.code === 1 ? 'success' : 'error',
+          message: res.data.message,
+          duration: 2000
+        })
+        this.initData()
+        this.initWindow()
       }
     },
     // 点击取消或者右上角的关闭按钮需要初始化窗口信息
@@ -846,7 +760,6 @@ export default {
     },
     // 编辑贴片
     editModel (info) {
-      console.log(info)
       if (info.picturetype === 'style-icon') {
         this.newPatch.photo = info.picturecontent
       } else {
@@ -867,23 +780,23 @@ export default {
       this.createFlag = true
     },
     // 用户操作
-    userOprate () {
-      logout().then((res) => {
-        if (res.data.code === 1) {
-          Message({
-            type: 'success',
-            message: '注销成功',
-            duration: 2000
-          })
-          this.$router.push('/login')
-        }
-      })
+    async userOprate () {
+      let res = await logout()
+      if (res.data.code === 1) {
+        Message({
+          type: 'success',
+          message: '注销成功',
+          duration: 2000
+        })
+        this.$router.push('/login')
+      }
     },
     // 打开链接
     openUrl (url) {
       window.open(url)
     },
-    testUrl (type) {
+    // 测试url地址合法性
+    checkUrl (type) {
       let reg = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-.,@?^=%&amp;:/~+#]*[\w\-@?^=%&amp;/~+#])?/
       if (type === 'applicationurl') {
         this.realUrl = reg.test(this.newPatch.applicationurl)
@@ -892,41 +805,29 @@ export default {
         this.realApi = reg.test(this.newPatch.apiurl)
       }
     },
-    testTitle () {
-      let _this = this
-      let flag = this.editFlag ? 1 : 0
-      validationTitle({
-        pictureid: _this.newPatch.pictureid,
-        title: _this.newPatch.applicationtitle,
-        flag: flag
-      }).then((res) => {
-        if (res.data.code !== 1) {
-          _this.realTitle = false
-        } else {
-          _this.realTitle = true
-        }
+    // 检查标题是否重名
+    async checkTitle () {
+      let res = await validationTitle({
+        pictureid: this.newPatch.pictureid,
+        title: this.newPatch.applicationtitle,
+        flag: this.editFlag ? 1 : 0
       })
+      this.realTitle = res.data.code === 1
     }
   },
-  mounted () {
-    let _this = this
+  async mounted () {
     // 初始化列表
-    _this.initData()
+    this.initData()
     // 初始化图标库
-    roleAndIcon().then((res) => {
-      let data = res.data.data
-      _this.iconList = data.icon
-      // 初始化默认图
-      _this.newPatch.photo = _this.iconList[0].content
-      _this.roleList = data.role
-    })
-    userRole().then((res) => {
-      if (res.data.code !== 1) {
-        _this.$router.push('/login')
-      } else {
-        _this.role = res.data.data.role
-      }
-    })
+    let roleAndIconRes = await roleAndIcon()
+    this.iconList = roleAndIconRes.data.data.icon
+    // 初始化默认图
+    this.newPatch.photo = this.iconList[0].content
+    // 初始化权限角色列表
+    this.roleList = roleAndIconRes.data.data.role
+    // 初始化用户角色
+    let userRoleRes = await userRole()
+    this.role = userRoleRes.data.data.role
   }
 }
 </script>
