@@ -272,7 +272,8 @@
         height: 524px;
         position: relative;
         border-bottom: 1px solid #EBEBEB;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
         .wContent{
           left: 0;
           position: absolute;
@@ -483,7 +484,7 @@
                   border-color: #DC3C00;
                 }
                 &::after{
-                  content: '请输入正确的网址';
+                  content: '网址不能为空或网址不合法';
                   position: absolute;
                   line-height: 30px;
                   left: 0;
@@ -497,7 +498,7 @@
                   border-color: #DC3C00;
                 }
                 &::after{
-                  content: '请检查标题是否重复';
+                  content: '标题不能为空或者不能重复';
                   position: absolute;
                   line-height: 30px;
                   left: 0;
