@@ -170,7 +170,6 @@
                 <i class="circle"></i>
                 <span @click="newPatch.picturetype='style-icon'">图标</span>
               </div>
-              <!-- 数字 数字列表 文字列表 类型暂未启用 -->
               <div class="selcet" :class="{'active':newPatch.picturetype === 'style-num'}">
                 <i class="circle"></i>
                 <span @click="newPatch.picturetype='style-num'">数字</span>
@@ -234,130 +233,78 @@
               </div>
             </div>
           </div>
-          <div class="wContent" :class="{'wContentL':step>2,'wContentM':step===2,'wContentR':step<2}">
-            <div class="line line4">
-              <div class="info">
-                <em>*</em>
-                <span>系统名称：</span>
-              </div>
-              <div class="inputCtn" :class="{'errorTitle':!realTitle}">
-                <el-input placeholder="请输入系统名称(必填项)" type="text" v-model="newPatch.applicationtitle" @blur="checkTitle()"/>
-              </div>
+          <el-form :model="newPatch" ref="newPatch" label-width="100px"  class="wContent form" :class="{'wContentL':step>2,'wContentM':step===2,'wContentR':step<2}">
+            <el-form-item label="系统名称：" prop="applicationtitle" :rules="[{ required: true, message: '系统名称不能为空'}, { validator: checkTitle, trigger: 'blur' }]">
+              <el-input placeholder="请输入系统名称(必填项)" v-model="newPatch.applicationtitle"></el-input>
+            </el-form-item>
+            <el-form-item label="系统地址：" prop="applicationurl" :rules="[{ required: true, message: '系统地址不能为空'}, { type: 'url', message: '系统地址格式不正确', trigger: ['blur', 'change'] }]">
+              <el-input placeholder="请输入系统地址(必填项)" v-model="newPatch.applicationurl">
+              <el-button slot="append" @click="openUrl(newPatch.applicationurl)">测试</el-button>
+              </el-input>
+            </el-form-item>
+            <el-form-item label="系统简介：">
+              <el-input placeholder="请输入对于系统的介绍说明" v-model="newPatch.applicationdescribe"></el-input>
+            </el-form-item>
+            <el-form-item label="是否启用：">
+               <el-switch v-model="newPatch.enable" active-color="#0078D7" inactive-color="#EEEEEE"></el-switch>
+            </el-form-item>
+            <el-form-item label="API地址：" prop="apiurl" :rules="[{ required: true, message: 'API地址不能为空'}, { type: 'url', message: 'API地址格式不正确', trigger: ['blur', 'change'] }]" v-if="newPatch.picturetype!=='style-icon'">
+              <el-input placeholder="填写内容接口(必填项)" v-model="newPatch.apiurl">
+              <el-button slot="append" @click="openUrl(newPatch.apiurl)">测试</el-button>
+              </el-input>
+            </el-form-item>
+          </el-form>
+          <el-form :model="newPatch" ref="newPatch" label-width="100px"  class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-num'">
+            <div class="explanation">
+               <div class="explanation-title">填写说明：</div>
+               <div class="explanation-content bg-num" v-if="newPatch.showExplanation"></div>
+               <div class="explanation-fold" @click="newPatch.showExplanation=!newPatch.showExplanation">{{newPatch.showExplanation?'收起 ∧':'展开 ∨'}}</div>
             </div>
-            <div class="line line4">
-              <div class="info">
-                <em>*</em>
-                <span>系统地址：</span>
-              </div>
-              <div class="inputCtn address" :class="{'errorUrl':!realUrl}">
-                <el-input placeholder="请输入系统地址(必填项)" type="text" v-model="newPatch.applicationurl" @blur="checkUrl('applicationurl')"/>
-                <div class="btn" @click="openUrl(newPatch.applicationurl)">测试</div>
-              </div>
+            <el-form-item label="内容标题：" prop="contentdata[0].title" :rules="[{ required: true, message: '内容标题不能为空'}]">
+              <el-input placeholder="填写字段名称" v-model="newPatch.contentdata[0].title" ></el-input>
+            </el-form-item>
+            <el-form-item label="内容字段：" prop="contentdata[0].filedkey" :rules="[{ required: true, message: '内容字段不能为空'}]">
+              <el-select v-model="newPatch.contentdata[0].filedkey" placeholder="请选择">
+                <el-option v-for="(item,index) in apiContent" :key="index" :label="item.keyname" :value="item.keyname"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
+          <el-form :model="newPatch" ref="newPatch" label-width="100px"  class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-text'">
+            <div class="explanation">
+               <div class="explanation-title">填写说明：</div>
+               <div class="explanation-content bg-text" v-if="newPatch.showExplanation"></div>
+               <div class="explanation-fold" @click="newPatch.showExplanation=!newPatch.showExplanation">{{newPatch.showExplanation?'收起':'展开'}}</div>
             </div>
-            <div class="line line4">
-              <div class="info">
-                <em style="visibility:hidden;">*</em>
-                <span>系统简介：</span>
-              </div>
-              <div class="inputCtn">
-                <el-input placeholder="请输入对于系统的介绍说明" type="text" v-model="newPatch.applicationdescribe"/>
-              </div>
+            <el-form-item label="时间类型：">
+              <el-input v-model="newPatch.contentdata[0].title" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="内容类型：">
+                <el-input v-model="newPatch.contentdata[0].filedkey" disabled/>
+            </el-form-item>
+          </el-form>
+          <el-form :model="newPatch" ref="newPatch" label-width="100px" :inline="true" class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-list'">
+            <div class="explanation">
+               <div class="explanation-title">填写说明：</div>
+               <div class="explanation-content bg-list" v-if="newPatch.showExplanation"></div>
+               <div class="explanation-fold" @click="newPatch.showExplanation=!newPatch.showExplanation">{{newPatch.showExplanation?'收起':'展开'}}</div>
             </div>
-            <div class="line line4">
-              <div class="info">
-                <em style="visibility:hidden;">*</em>
-                <span>是否启用：</span>
-              </div>
-              <div class="inputCtn" style="line-height:38px">
-                <el-switch
-                  v-model="newPatch.enable"
-                  active-color="#0078D7"
-                  inactive-color="#EEEEEE">
-                </el-switch>
-              </div>
+            <div style="width:100%;" v-for="(item,index) in newPatch.contentdata" :key="`title${index}`">
+            <el-form-item label="内容标题：" :prop="`contentdata[${index}].title`" :rules="[{ required: true, message: '内容标题不能为空'}]">
+              <el-input placeholder="填写字段名称" v-model="item.title"></el-input>
+            </el-form-item>
+            <el-form-item label="内容字段：" :prop="`contentdata[${index}].filedkey`" :rules="[{ required: true, message: '内容字段不能为空'}]">
+              <el-select v-model="item.filedkey" placeholder="请选择字段">
+                <el-option v-for="(item2,index2) in apiContent" :key="`option${index2}`" :label="item2.keyname" :value="item2.keyname"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <i class="icon icon-add" @click="addContent(index)" v-if="newPatch.contentdata.length<=5"></i>
+              <i class="icon icon-remove" @click="removeContent(index)" v-if="!(index===0&&newPatch.contentdata.length===1)"></i>
+              <i class="icon icon-up" @click="upContent(index)" v-if="index!==0"></i>
+              <i class="icon icon-down" @click="downContent(index)" v-if="index!==newPatch.contentdata.length-1"></i>
+            </el-form-item>
             </div>
-            <div class="line line4" v-if="newPatch.picturetype!=='style-icon'">
-              <div class="info">
-                <em>*</em>
-                <span>API地址：</span>
-              </div>
-              <div class="inputCtn address" :class="{'errorUrl':!realApi}">
-                <el-input placeholder="填写内容接口(必填项)" type="text" v-model="newPatch.apiurl" @blur="checkUrl('apiurl')"/>
-                <div class="btn" @click="openUrl(newPatch.apiurl)">测试</div>
-              </div>
-            </div>
-          </div>
-          <div class="wContent" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-num'">
-            <div class="line">
-              <span>填写说明：</span>
-              <div></div>
-              <span>{{'收起'}} <i class="el-icon-arrow-up"></i></span>
-            </div>
-            <div class="line line4">
-              <div class="info">
-                <em>*</em>
-                <span>内容标题：</span>
-              </div>
-              <div class="inputCtn">
-                <el-input placeholder="填写字段名称" v-model="newPatch.contentdata[0].title" type="text"/>
-              </div>
-            </div>
-            <div class="line line4">
-              <div class="info">
-                <em>*</em>
-                <span>内容字段：</span>
-              </div>
-              <div class="inputCtn">
-                <el-select v-model="newPatch.contentdata[0].filedkey" placeholder="请选择">
-                  <el-option v-for="(item,index) in apiContent" :key="index" :label="item.keyname" :value="item.keyname"></el-option>
-                </el-select>
-              </div>
-            </div>
-          </div>
-          <div class="wContent" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-text'">
-            <div class="line line4">
-              <div class="info">
-                <em>*</em>
-                <span>时间类型：</span>
-              </div>
-              <div class="inputCtn">
-                <el-input placeholder="填写字段名称" v-model="newPatch.contentdata[0].title" type="text" disabled/>
-              </div>
-            </div>
-            <div class="line line4">
-              <div class="info">
-                <em>*</em>
-                <span>内容类型：</span>
-              </div>
-              <div class="inputCtn">
-                <el-input placeholder="填写字段名称" v-model="newPatch.contentdata[0].filedkey" type="text" disabled/>
-              </div>
-            </div>
-          </div>
-          <div class="wContent" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-list'">
-            <div class="line line4" v-for="(item,index) in newPatch.contentdata" :key="`title${index}`">
-              <div class="info">
-                <em>*</em>
-                <span>内容标题：</span>
-              </div>
-              <div class="inputCtn">
-                <el-input placeholder="填写字段名称" v-model="item.title" type="text"/>
-              </div>
-              <div class="info">
-                <em>*</em>
-                <span>内容字段：</span>
-              </div>
-              <div class="inputCtn">
-                <el-select v-model="item.filedkey" placeholder="请选择">
-                  <el-option v-for="(item2,index2) in apiContent" :key="`option${index2}`" :label="item2.keyname" :value="item2.keyname"></el-option>
-                </el-select>
-                <i class="el-icon-plus" @click="addContent(index)" v-if="newPatch.contentdata.length<=5"></i>
-                <i class="el-icon-minus" @click="removeContent(index)" v-if="!(index===0&&newPatch.contentdata.length===1)"></i>
-                <i class="el-icon-upload2" @click="upContent(index)" v-if="index!==0"></i>
-                <i class="el-icon-download" @click="downContent(index)" v-if="index!==newPatch.contentdata.length-1"></i>
-              </div>
-            </div>
-          </div>
+          </el-form>
           <div class="wContent" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-icon'">
             <div class="iconCtn">
               <div class="btnCtn">
@@ -409,31 +356,18 @@
               </div>
             </div>
           </div>
-          <div class="wContent" :class="{'wContentL':step>4,'wContentM':step===4,'wContentR':step<4}">
-            <div class="line line5">
-              <div class="info">
-                <em>*</em>
-                <span>可见角色：</span>
-              </div>
-              <div class="selCtn">
-                <el-select v-model="newPatch.roles" multiple placeholder="请选择">
-                  <el-option
-                    v-for="item in roleList"
-                    :key="item.roleid"
-                    :label="item.rolename"
-                    :value="item.roleid">
-                  </el-option>
-                </el-select>
-              </div>
-            </div>
-          </div>
+          <el-form :model="newPatch" ref="newPatch" label-width="100px"  class="wContent form" :class="{'wContentL':step>4,'wContentM':step===4,'wContentR':step<4}">
+            <el-form-item label="可见角色：" prop="roles" :rules="[{ required: true, message: '可见角色不能为空'}]">
+              <el-select v-model="newPatch.roles" multiple placeholder="请选择">
+                <el-option v-for="item in roleList" :key="item.roleid" :label="item.rolename" :value="item.roleid"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
         </div>
         <div class="opration">
-          <div class="button button1" v-if="editFlag" @click="next">{{step===4?'确认':'下一步'}}</div>
-          <div class="button button1" v-if="!editFlag"  @click="next">{{step===4?'完成':'下一步'}}</div>
+          <div class="button button1" @click="next">{{step===4?editFlag?'确认':'完成':'下一步'}}</div>
           <div class="button button2" @click="initWindow">取消</div>
-          <div class="button button3" v-if="editFlag" v-show="step!==2" @click="step--">上一步</div>
-          <div class="button button3" v-if="!editFlag" v-show="step!==1" @click="step--">上一步</div>
+          <div class="button button3" v-show="editFlag?step!==2:step!==1" @click="step--">上一步</div>
         </div>
       </div>
     </div>
@@ -476,6 +410,7 @@ export default {
         selfBase64: '',
         pictureid: '',
         apiurl: '',
+        showExplanation: true,
         refreshflag: 1,
         contentdata: [
           { title: '', filedkey: '', filedsort: 1 }
@@ -822,6 +757,7 @@ export default {
         selfBase64: '',
         pictureid: '',
         apiurl: '',
+        showExplanation: true,
         refreshflag: 1,
         contentdata: [
           { title: '', filedkey: '', filedsort: 1 }
@@ -885,24 +821,15 @@ export default {
     openUrl (url) {
       window.open(url)
     },
-    // 测试url地址合法性
-    checkUrl (type) {
-      let reg = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-.,@?^=%&amp;:/~+#]*[\w\-@?^=%&amp;/~+#])?/
-      if (type === 'applicationurl') {
-        this.realUrl = reg.test(this.newPatch.applicationurl)
-      }
-      if (type === 'apiurl') {
-        this.realApi = reg.test(this.newPatch.apiurl)
-      }
-    },
     // 检查标题是否重名
-    async checkTitle () {
+    async checkTitle (rule, value, callback) {
       let res = await validationTitle({
         pictureid: this.newPatch.pictureid,
         title: this.newPatch.applicationtitle,
         flag: this.editFlag ? 1 : 0
       })
       this.realTitle = res.data.code === 1
+      res.data.code === 1 ? callback() : callback(new Error('系统名称不能重名'))
     }
   },
   async mounted () {
