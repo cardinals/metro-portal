@@ -61,12 +61,12 @@
             <!-- 取消添加，需要单独调用接口 -->
             <i class="cancle" @click.stop="cancleModel(item.pictureid)"><span>×</span></i>
             <span class="title">{{item.applicationtitle}}</span>
-            <!-- 判断四种类型  由于目前只有第一种类型数据，因此其他几种数据的字段不确定，后续维护需要手动更改-->
+            <!-- 判断四种类型 -->
               <!-- 图标类型 -->
             <div v-if="item.picturetype === 'style-icon'" class="img" :style="{backgroundImage:'url(data:image/png;base64,' + item.picturecontent + ')'}"></div>
             <!-- 数字类型-->
             <div v-if="item.picturetype === 'style-num'" class="numCtn">
-              <div v-for="(item2,index2) in asyncData[item.id]['data']" :key="index2" v-show="index2<1">
+              <div v-for="(item2,index2) in asyncData[item.pictureid]['data']" :key="index2" v-show="index2<1">
                 <span class="word">{{item2.name}}</span>
                 <span class="number">
                   <ICountUp :startVal="ICountUp.startVal" :endVal="item2.value" :decimals="ICountUp.decimals"
@@ -77,7 +77,7 @@
             </div>
             <!-- 数字列表-->
             <div v-if="item.picturetype === 'style-list'" class="listCtn">
-              <div v-for="(item2,index2) in asyncData[item.id]['data']" :key="index2" class="list" v-show="(item.picturesize==='sizem'&&index2<3)||(item.picturesize==='sizel'&&index2<6)">
+              <div v-for="(item2,index2) in asyncData[item.pictureid]['data']" :key="index2" class="list" v-show="(item.picturesize==='sizem'&&index2<3)||(item.picturesize==='sizel'&&index2<6)">
                 <span>{{item2.name}}</span>
                 <span>
                   <ICountUp :startVal="ICountUp.startVal" :endVal="item2.value" :decimals="ICountUp.decimals"
@@ -87,7 +87,7 @@
             </div>
             <!-- 文字列表-->
             <div v-if="item.picturetype === 'style-text'" class="listCtn">
-              <div v-for="(item2,index2) in asyncData[item.id]['data']" :key="index2" class="list" v-show="(item.picturesize==='sizems'&&index2<1)||(item.picturesize==='sizem'&&index2<2)||(item.picturesize==='sizel'&&index2<5)">
+              <div v-for="(item2,index2) in asyncData[item.pictureid]['data']" :key="index2" class="list animated zoomInRight fast" v-show="(item.picturesize==='sizem'&&index2<2)||(item.picturesize==='sizel'&&index2<5)">
                 <span class="time">{{item2.name}}</span>
                 <span class="content">{{item2.value}}</span>
               </div>
@@ -188,7 +188,7 @@ export default {
             picturetype: 'style-num',
             bgcolor: 'bg-blue',
             applicationtitle: '数字样式1',
-            id: 'test4',
+            pictureid: 'test4',
             picturecontent: {
               apiurl: 'http://192.168.91.13:3000/mock/112/portal/list',
               contentdata: [
@@ -208,7 +208,7 @@ export default {
             picturetype: 'style-list',
             bgcolor: 'bg-orange',
             applicationtitle: '数字样式2',
-            id: 'test8',
+            pictureid: 'test8',
             picturecontent: {
               apiurl: 'http://192.168.91.13:3000/mock/112/portal/list',
               contentdata: [
@@ -232,7 +232,7 @@ export default {
             picturetype: 'style-text',
             bgcolor: 'bg-orange',
             applicationtitle: '文本样式3',
-            id: 'test12',
+            pictureid: 'test12',
             picturecontent: {
               apiurl: 'http://192.168.91.13:3000/mock/112/portal/text',
               contentdata: [
@@ -473,37 +473,35 @@ export default {
       }
     },
     // 页面初始化
-    initdesktopData () {
+    async initdesktopData () {
       let _this = this
-      initAdd().then((res) => {
-        if (res.data.code !== 1) {
-          Message({
-            type: 'error',
-            message: res.data.message,
-            duration: 2000
-          })
-        } else {
-          layoutInfo().then((res) => {
-            if (res.data.code === 1) {
-              let data = res.data.data
-              // let data = _this.testData
-              for (let item in data) {
-                data[item].fileTitleEditFlag = false
+      let initRes = await initAdd()
+      if (initRes.data.code !== 1) {
+        Message({
+          type: 'error',
+          message: initRes.data.message,
+          duration: 2000
+        })
+        return ''
+      }
+      if (initRes.data.code === 1) {
+        let layoutRes = await layoutInfo()
+        if (layoutRes.data.code === 1) {
+          let data = layoutRes.data.data
+          _this.asyncData = {}
+          for (let item in data) {
+            data[item].fileTitleEditFlag = false
+            data[item].data.map(item => {
+              if (item.picturetype !== 'style-icon') {
+                _this.$set(_this.asyncData, item.pictureid, { type: item.picturetype, apiurl: item.picturecontent.apiurl, contentdata: item.picturecontent.contentdata, data: [] })
               }
-              for (let index = 1; index <= 6; index++) {
-                data[`model${index}`].data.map(item => {
-                  if (item.picturetype !== 'style-icon') {
-                    _this.$set(_this.asyncData, item.id, { type: item.picturetype, apiurl: item.picturecontent.apiurl, contentdata: item.picturecontent.contentdata, data: [] })
-                  }
-                })
-              }
-              _this.desktopData = data
-              _this.loaded = true
-              _this.ergodic()
-            }
-          })
+            })
+          }
+          _this.desktopData = data
+          this.loaded = true
+          _this.ergodic()
         }
-      })
+      }
     },
     // 退出登录
     userOprate (cmd) {
