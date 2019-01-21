@@ -26,6 +26,9 @@ axios.interceptors.request.use(
 // 响应拦截器
 axios.interceptors.response.use(
   response => {
+    if (response.data.code === 10) {
+      window.location.href = `http://${window.location.host}`
+    }
     return Promise.resolve(response)
   },
   error => {
