@@ -87,7 +87,7 @@
             </div>
             <!-- 文字列表-->
             <div v-if="item.picturetype === 'style-text'" class="listCtn">
-              <div v-for="(item2,index2) in asyncData[item.pictureid]['data']" :key="index2" class="list" v-show="(item.picturesize==='sizem'&&index2<2)||(item.picturesize==='sizel'&&index2<5)">
+              <div v-for="(item2,index2) in asyncData[item.pictureid]['data']" :key="index2" class="list animated zoomInRight fast" v-show="(item.picturesize==='sizem'&&index2<2)||(item.picturesize==='sizel'&&index2<5)">
                 <span class="time">{{item2.name}}</span>
                 <span class="content">{{item2.value}}</span>
               </div>
