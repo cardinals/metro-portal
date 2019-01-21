@@ -27,7 +27,7 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   response => {
     if (response.data.code === 10) {
-      window.location.href = `http://${window.location.host}`
+      window.location.href = `http://${window.location.host}/#/login`
     }
     return Promise.resolve(response)
   },
