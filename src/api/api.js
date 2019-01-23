@@ -32,4 +32,6 @@ const userRole = () => http.get(`${baseUrl}/userRole`)
 const fallback = () => http.get(`${baseUrl}/fallback`)
 // 验证标题是否重名
 const validationTitle = (params) => http.get(`${baseUrl}/validationTitle`, params)
-export { patchList, deletePatch, cancelPatch, addPatch, removePatch, roleAndIcon, createPatch, editPatch, initAdd, layoutInfo, savePatch, login, logout, userRole, fallback, validationTitle }
+// 验证用户自定义API信息
+const validationApiInfo = (params) => http.get(`${baseUrl}/apiInfo`, params)
+export { patchList, deletePatch, cancelPatch, addPatch, removePatch, roleAndIcon, createPatch, editPatch, initAdd, layoutInfo, savePatch, login, logout, userRole, fallback, validationTitle, validationApiInfo }

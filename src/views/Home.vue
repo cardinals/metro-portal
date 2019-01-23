@@ -35,7 +35,7 @@
         <div  v-if="role" class="button button2" @click="$router.push('/edit')">添加贴片</div>
       </div>
       <!-- 六大模块 -->
-      <div :class="desktopEditFlag?'desktop edit':'desktop'">
+      <div :class="desktopEditFlag?'desktop edit':'desktop'" v-if="loaded">
         <!-- targetFileId用于记录六大模块哪个模块变蓝，再执行drag函数的时候改变 -->
         <!-- 文件夹区域-->
         <div v-for="(model,modelKey,modelIndex) in desktopData"
@@ -61,26 +61,35 @@
             <!-- 取消添加，需要单独调用接口 -->
             <i class="cancle" @click.stop="cancleModel(item.pictureid)"><span>×</span></i>
             <span class="title">{{item.applicationtitle}}</span>
-            <!-- 判断四种类型  由于目前只有第一种类型数据，因此其他几种数据的字段不确定，后续维护需要手动更改-->
-            <!-- 图标类型 -->
+            <!-- 判断四种类型 -->
+              <!-- 图标类型 -->
             <div v-if="item.picturetype === 'style-icon'" class="img" :style="{backgroundImage:'url(data:image/png;base64,' + item.picturecontent + ')'}"></div>
-            <!-- 数字类型 该版本未实现 -->
+            <!-- 数字类型-->
             <div v-if="item.picturetype === 'style-num'" class="numCtn">
-              <span class="word">{{item.list[0].name}}</span>
-              <span class="number">{{item.list[0].number}}<em>{{item.list[0].unit}}</em></span>
-            </div>
-            <!-- 数字列表 该版本未实现 -->
-            <div v-if="item.picturetype === 'style-list'" class="listCtn">
-              <div v-for="(item2,index2) in item.list" :key="index2" class="list" v-show="(item.drag==='drag2'&&index2<3)||(item.drag==='drag3'&&index2<6)">
-                <span>{{item2.name}}</span>
-                <span>{{item2.number}}</span>
+              <div v-for="(item2,index2) in asyncData[item.pictureid]['data']" :key="index2" v-show="index2<1">
+                <span class="word">{{item2.name}}</span>
+                <span class="number">
+                  <ICountUp :startVal="ICountUp.startVal" :endVal="item2.value" :decimals="ICountUp.decimals"
+                    :duration="ICountUp.duration" :options="ICountUp.options"/>
+                  <em>{{item2.unit}}</em>
+                </span>
               </div>
             </div>
-            <!-- 文字列表 该版本未实现 -->
+            <!-- 数字列表-->
+            <div v-if="item.picturetype === 'style-list'" class="listCtn">
+              <div v-for="(item2,index2) in asyncData[item.pictureid]['data']" :key="index2" class="list" v-show="(item.picturesize==='sizem'&&index2<3)||(item.picturesize==='sizel'&&index2<6)">
+                <span>{{item2.name}}</span>
+                <span>
+                  <ICountUp :startVal="ICountUp.startVal" :endVal="item2.value" :decimals="ICountUp.decimals"
+                   :duration="ICountUp.duration" :options="ICountUp.options"/>
+                </span>
+              </div>
+            </div>
+            <!-- 文字列表-->
             <div v-if="item.picturetype === 'style-text'" class="listCtn">
-              <div v-for="(item2,index2) in item.list" :key="index2" class="list" v-show="(item.drag==='drag1'&&index2<1)||(item.drag==='drag2'&&index2<2)||(item.drag==='drag3'&&index2<6)">
-                <span class="time">{{item2.time}}</span>
-                <span class="content">{{item2.text}}</span>
+              <div v-for="(item2,index2) in asyncData[item.pictureid]['data']" :key="index2" class="list animated zoomInRight fast" v-show="(item.picturesize==='sizem'&&index2<2)||(item.picturesize==='sizel'&&index2<5)">
+                <span class="time">{{item2.name}}</span>
+                <span class="content">{{item2.value}}</span>
               </div>
             </div>
             <!-- 改变磁贴大小 -->
@@ -89,7 +98,7 @@
                 <img src="@/assets/image/changeSize.png"/>
               </div>
               <div class="list">
-                <div class="font" v-if="item.type !== 'style-list-l'&&item.type !== 'style-list-xl'" @click.stop="changeSize('S',item.pictureid)">S</div>
+                <div class="font" v-if="item.picturetype === 'style-icon' || item.picturetype === 'style-num'" @click.stop="changeSize('S',item.pictureid)">S</div>
                 <div class="font" @click.stop="changeSize('M',item.pictureid)">M</div>
                 <div class="font" @click.stop="changeSize('L',item.pictureid)">L</div>
               </div>
@@ -123,59 +132,6 @@
               </div>
             </div>
           </div>
-          <!-- 备份 -->
-          <!-- <div id="1" class="drag drag1 style-icon-m bg-blue" :draggable="desktopEditFlag" @dragstart="dragstart">
-            <i class="cancle"><span>×</span></i>
-            <span class="title">议案一档</span>
-            <div class="img" :style="{backgroundImage:'url(' + img + ')'}"></div>
-            <div class="changed changeSize" v-show="desktopEditFlag">
-              <div class="button">
-                <img src="@/assets/image/changeSize.png"/>
-              </div>
-              <div class="list">
-                <div class="font">S</div>
-                <div class="font">M</div>
-                <div class="font">L</div>
-              </div>
-            </div>
-            <div class="changed changeColor" v-show="desktopEditFlag">
-              <div class="button">
-                <img src="@/assets/image/changeColor.png"/>
-              </div>
-              <div class="list">
-                <div class="rect">
-                  <div class="border-box blue">
-                    <div class="content-box"></div>
-                  </div>
-                </div>
-                <div class="rect">
-                  <div class="border-box green">
-                    <div class="content-box"></div>
-                  </div>
-                </div>
-                <div class="rect">
-                  <div class="border-box red">
-                    <div class="content-box"></div>
-                  </div>
-                </div>
-                <div class="rect">
-                  <div class="border-box orange">
-                    <div class="content-box"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div id="2" class="drag drag2 style-icon-l bg-green" :draggable="desktopEditFlag" @dragstart="dragstart">
-            <i class="cancle"><span>×</span></i>
-            <span class="title">议案一档</span>
-             <div class="img" :style="{backgroundImage:'url(' + img + ')'}"></div>
-          </div>
-          <div id="3" class="drag drag3 style-icon-xl bg-orange" :draggable="desktopEditFlag" @dragstart="dragstart">
-            <i class="cancle"><span>×</span></i>
-            <span class="title">议案一档</span>
-             <div class="img" :style="{backgroundImage:'url(' + img + ')'}"></div>
-          </div> -->
         </div>
       </div>
     </div>
@@ -185,8 +141,13 @@
 <script>
 import { initAdd, layoutInfo, savePatch, cancelPatch, logout, userRole, fallback } from '@/api/api.js'
 import { Message } from 'element-ui'
+import http from '@/plugins/axios.js'
+import ICountUp from 'vue-countup-v2'
 export default {
   name: 'home',
+  components: {
+    ICountUp
+  },
   data () {
     return {
       desktopEditFlag: false, // 是否进入编辑操作
@@ -195,186 +156,92 @@ export default {
       dropDomIndex: 0, // 这个数据主要用于记录放置到某个drag元素后面
       oldFatherId: '', // 存储元素被拖拽时的初始father容器
       fileTitleEditFlag: false,
+      loaded: false, // 数据加载完毕
       role: null, // 角色信息
+      // 数字滚动配置项
+      ICountUp: {
+        startVal: 0,
+        decimals: 0,
+        duration: 3,
+        options: {
+          useEasing: true,
+          useGrouping: true,
+          separator: ',',
+          decimal: '.',
+          prefix: '',
+          suffix: ''
+        }
+      },
+      asyncData: {}, // 异步数据
       // 备份区域的测试数据
       testData: {
         model1: {
           title: '模块1',
           fileTitleEditFlag: false,
-          data: [{
-            drag: 'drag1',
-            type: 'style-icon-m',
-            bg: 'bg-blue',
-            name: '图标样式1',
-            id: 'test1',
-            img: require('../assets/image/icon_shape.png')
-          }, {
-            drag: 'drag2',
-            type: 'style-icon-l',
-            bg: 'bg-orange',
-            name: '图标样式2',
-            id: 'test2',
-            img: require('../assets/image/icon_shape.png')
-          }, {
-            drag: 'drag3',
-            type: 'style-icon-xl',
-            bg: 'bg-green',
-            name: '图标样式3',
-            id: 'test3',
-            img: require('../assets/image/icon_shape.png')
-          }]
+          data: []
         },
         model2: {
           title: '模块2',
           fileTitleEditFlag: false,
           data: [{
-            drag: 'drag1',
-            type: 'style-num-m',
-            bg: 'bg-blue',
-            name: '数字样式1',
-            id: 'test4',
-            list: [{
-              name: '昨日服务',
-              number: 4136,
-              unit: '人'
-            }]
-          }, {
-            drag: 'drag2',
-            type: 'style-num-l',
-            bg: 'bg-orange',
-            name: '数字样式2',
-            id: 'test5',
-            list: [{
-              name: '今日服务',
-              number: 426,
-              unit: '人'
-            }]
-          }, {
-            drag: 'drag3',
-            type: 'style-num-xl',
-            bg: 'bg-green',
-            name: '数字样式3',
-            id: 'test6',
-            list: [{
-              name: '明日服务',
-              number: 296,
-              unit: '人'
-            }]
+            picturesize: 'sizem',
+            picturetype: 'style-num',
+            bgcolor: 'bg-blue',
+            applicationtitle: '数字样式1',
+            pictureid: 'test4',
+            picturecontent: {
+              apiurl: 'http://192.168.91.13:3000/mock/112/portal/list',
+              contentdata: [
+                {
+                  title: '今日新增',
+                  filedkey: 'today'
+                }
+              ]
+            }
           }]
         },
         model3: {
           title: '模块3',
           fileTitleEditFlag: false,
           data: [{
-            drag: 'drag2',
-            type: 'style-list-l',
-            bg: 'bg-blue',
-            name: '数字样式1',
-            id: 'test7',
-            list: [{
-              name: '今日新增',
-              number: 4236
-            }, {
-              name: '今日新增',
-              number: 4236
-            }]
-          }, {
-            drag: 'drag2',
-            type: 'style-list-l',
-            bg: 'bg-orange',
-            name: '数字样式2',
-            id: 'test8',
-            list: [{
-              name: '今日新增',
-              number: 4236
-            }, {
-              name: '今日新增',
-              number: 4236
-            }, {
-              name: '今日新增',
-              number: 4236
-            }, {
-              name: '今日新增',
-              number: 4236
-            }, {
-              name: '今日新增',
-              number: 4236
-            }, {
-              name: '今日新增',
-              number: 4236
-            }]
-          }, {
-            drag: 'drag3',
-            type: 'style-list-xl',
-            bg: 'bg-green',
-            name: '数字样式3',
-            id: 'test9',
-            list: [{
-              name: '今日新增',
-              number: 4236
-            }, {
-              name: '今日新增',
-              number: 4236
-            }, {
-              name: '今日新增',
-              number: 4236
-            }, {
-              name: '今日新增',
-              number: 4236
-            }, {
-              name: '今日新增',
-              number: 4236
-            }, {
-              name: '今日新增',
-              number: 4236
-            }]
+            picturesize: 'sizem',
+            picturetype: 'style-list',
+            bgcolor: 'bg-orange',
+            applicationtitle: '数字样式2',
+            pictureid: 'test8',
+            picturecontent: {
+              apiurl: 'http://192.168.91.13:3000/mock/112/portal/list',
+              contentdata: [
+                {
+                  title: '昨日新增',
+                  filedkey: 'yesterday'
+                },
+                {
+                  title: '今日新增',
+                  filedkey: 'today'
+                }
+              ]
+            }
           }]
         },
         model4: {
           title: '模块4',
           fileTitleEditFlag: false,
           data: [{
-            drag: 'drag1',
-            type: 'style-text-m',
-            bg: 'bg-green',
-            name: '文本样式1',
-            id: 'test10',
-            list: [{
-              time: '11/26 08:31',
-              text: '张国民申请法律援助服务，请及时处理请及时处理'
-            }]
-          }, {
-            drag: 'drag2',
-            type: 'style-text-l',
-            bg: 'bg-blue',
-            name: '文本样式2',
-            id: 'test11',
-            list: [{
-              time: '11/26 08:31',
-              text: '张国民申请法律援助服务，请及时处理请及时处理'
-            }, {
-              time: '11/26 08:31',
-              text: '张国民申请法律援助服务，请及时处理请及时处理'
-            }]
-          }, {
-            drag: 'drag3',
-            type: 'style-text-xl',
-            bg: 'bg-orange',
-            name: '文本样式3',
-            id: 'test12',
-            list: [{
-              time: '11/26 08:31',
-              text: '张国民申请法律援助服务，请及时处理请及时处理'
-            }, {
-              time: '11/26 08:31',
-              text: '张国民申请法律援助服务，请及时处理请及时处理'
-            }, {
-              time: '11/26 08:31',
-              text: '张国民申请法律援助服务，请及时处理请及时处理'
-            }, {
-              time: '11/26 08:31',
-              text: '张国民申请法律援助服务，请及时处理请及时处理'
-            }]
+            picturesize: 'sizel',
+            picturetype: 'style-text',
+            bgcolor: 'bg-orange',
+            applicationtitle: '文本样式3',
+            pictureid: 'test12',
+            picturecontent: {
+              apiurl: 'http://192.168.91.13:3000/mock/112/portal/text',
+              contentdata: [
+                {
+                  title: '昨日新增',
+                  filedkey: 'yesterday'
+                }
+              ]
+            }
           }]
         },
         model5: {
@@ -606,27 +473,35 @@ export default {
       }
     },
     // 页面初始化
-    initdesktopData () {
+    async initdesktopData () {
       let _this = this
-      initAdd().then((res) => {
-        if (res.data.code !== 1) {
-          Message({
-            type: 'error',
-            message: res.data.message,
-            duration: 2000
-          })
-        } else {
-          layoutInfo().then((res) => {
-            if (res.data.code === 1) {
-              let data = res.data.data
-              for (let item in data) {
-                data[item].fileTitleEditFlag = false
+      let initRes = await initAdd()
+      if (initRes.data.code !== 1) {
+        Message({
+          type: 'error',
+          message: initRes.data.message,
+          duration: 2000
+        })
+        return ''
+      }
+      if (initRes.data.code === 1) {
+        let layoutRes = await layoutInfo()
+        if (layoutRes.data.code === 1) {
+          let data = layoutRes.data.data
+          _this.asyncData = {}
+          for (let item in data) {
+            data[item].fileTitleEditFlag = false
+            data[item].data.map(item => {
+              if (item.picturetype !== 'style-icon') {
+                _this.$set(_this.asyncData, item.pictureid, { type: item.picturetype, apiurl: item.picturecontent.apiurl, contentdata: item.picturecontent.contentdata, data: [] })
               }
-              _this.desktopData = data
-            }
-          })
+            })
+          }
+          _this.desktopData = data
+          this.loaded = true
+          _this.ergodic()
         }
-      })
+      }
     },
     // 退出登录
     userOprate (cmd) {
@@ -654,6 +529,32 @@ export default {
           }
         })
       }
+    },
+    // 遍历异步磁贴
+    ergodic () {
+      Object.keys(this.asyncData).map(item => {
+        this.getAsyncData(item)
+      })
+    },
+    // 获取异步磁贴的数据
+    async getAsyncData (key) {
+      let res = await http.get(this.asyncData[key]['apiurl'])
+      let data = []
+      if (this.asyncData[key]['type'] === 'style-num' || this.asyncData[key]['type'] === 'style-list') {
+        this.asyncData[key]['contentdata'].map((item) => {
+          res.data.data.map((item2) => {
+            if (item.filedkey === item2.keyname) {
+              data.push({ name: item.title, value: item2.number, unit: item.unit })
+            }
+          })
+        })
+      }
+      if (this.asyncData[key]['type'] === 'style-text') {
+        res.data.data.map((item2) => {
+          data.push({ name: item2.time, value: item2.content })
+        })
+      }
+      this.$set(this.asyncData[key], 'data', data)
     }
   },
   mounted () {
@@ -667,6 +568,6 @@ export default {
   }
 }
 </script>
-<style lang="less" scoped>
+<style lang="less">
   @import '~@/assets/css/home.less';
 </style>
