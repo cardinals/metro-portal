@@ -522,29 +522,6 @@ export default {
     imgFilter (val) {
       return window.URL.createObjectURL(this.base64ToBlob('data:image/png;base64,' + val, 'image/png'))
     },
-    // 转base64
-    getBase64Image (img) {
-      var canvas = document.createElement('canvas')
-      canvas.width = img.width
-      canvas.height = img.height
-      var ctx = canvas.getContext('2d')
-      ctx.drawImage(img, 0, 0, img.width, img.height)
-      var ext = img.src.substring(img.src.lastIndexOf('.') + 1).toLowerCase()
-      var dataURL = canvas.toDataURL('image/' + ext)
-      return dataURL
-    },
-    // 图片上传大小格式限制
-    beforeAvatarUpload (file) {
-      const isJPG = file.type === 'image/jpeg'
-      const isLt2M = file.size / 1024 / 1024 < 2
-      if (!isJPG) {
-        this.$message.error('上传图片只能是 JPG 格式!')
-      }
-      if (!isLt2M) {
-        this.$message.error('上传图片大小不能超过 2MB!')
-      }
-      return isJPG && isLt2M
-    },
     // 文件上传
     fileChange (file, fileList) {
       const isJPG = file.raw.type === 'image/jpeg' || file.raw.type === 'image/png'
@@ -771,14 +748,6 @@ export default {
       this.realTitle = true
       this.realApi = true
       this.apiContent = []
-    },
-    // 选择贴片样式时的提示信息
-    showTips () {
-      Message({
-        type: 'error',
-        message: '该贴片样式暂不可用',
-        duration: 2000
-      })
     },
     // 编辑贴片
     editModel (info) {
