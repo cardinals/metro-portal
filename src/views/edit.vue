@@ -21,7 +21,7 @@
       <div class="titleCtn">
         <div class="leftCtn">
           <span class="h1">贴片清单</span>
-          <div v-if="role" class="button" @click="createFlag=true">
+          <div v-if="role" class="button" @click="showWindowFlag=true">
             <i class="icon">+</i>
             <span>新建贴片</span>
           </div>
@@ -153,11 +153,11 @@
       </div>
       <div class="line2">copyright©2018 银江股份</div>
     </div>
-    <div class="window" v-show="createFlag">
+    <div class="window" v-show="showWindowFlag">
       <div class="main">
         <div class="head">
           <span>{{stepTitle}}</span>
-          <span @click="initWindow">X</span>
+          <span @click="initWindow()">X</span>
         </div>
         <div class="contentCtn">
           <div class="wContent" :class="{'wContentL':step>1,'wContentM':step===1,'wContentR':step<1}">
@@ -366,7 +366,7 @@
         </div>
         <div class="opration">
           <div class="button button1" @click="next">{{step===4?editFlag?'确认':'完成':'下一步'}}</div>
-          <div class="button button2" @click="initWindow">取消</div>
+          <div class="button button2" @click="initWindow()">取消</div>
           <div class="button button3" v-show="editFlag?step!==2:step!==1" @click="step--">上一步</div>
         </div>
       </div>
@@ -383,8 +383,8 @@ export default {
       showWhich: '图标库', // 编辑/新建状态下选择显示自定义/图标库
       step: 1, // 添加贴片的步骤
       fileList: [],
-      createFlag: false, // 是否展示编辑/新增贴片
-      editFlag: false, // 是否编辑贴片
+      showWindowFlag: false, // 是否展示新增/编辑弹窗
+      editFlag: false, // 是否为编辑贴片状态
       modelArr: [], // 六个模块
       toAddList: [], // 待添加
       addedList: [], // 已添加
@@ -764,7 +764,7 @@ export default {
         ]
       }
       this.showWhich = '图标库'
-      this.createFlag = false
+      this.showWindowFlag = false
       this.editFlag = false
       this.step = 1
       this.realUrl = true
@@ -803,7 +803,7 @@ export default {
       })
       this.step = 2
       this.editFlag = true
-      this.createFlag = true
+      this.showWindowFlag = true
     },
     // 用户操作
     async userOprate () {
