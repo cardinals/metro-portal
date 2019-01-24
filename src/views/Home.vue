@@ -287,7 +287,8 @@ export default {
           fileTitleEditFlag: false,
           data: []
         }
-      }
+      },
+      setInterval: ''
     }
   },
   methods: {
@@ -499,11 +500,11 @@ export default {
           }
           _this.desktopData = data
           this.loaded = true
-          _this.ergodic()
+          _this.asyncTimingTack()
         }
       }
     },
-    // 退出登录
+    // 用户操作--桌面还原、用户退出
     userOprate (cmd) {
       let _this = this
       if (cmd === 'fallback') {
@@ -529,6 +530,21 @@ export default {
           }
         })
       }
+    },
+    // 异步定时任务
+    asyncTimingTack () {
+      let _this = this
+      if (_this.setInterval !== '') {
+        // 清空旧计数器
+        clearInterval(_this.setInterval)
+        _this.setInterval = ''
+      }
+      // 第一次获取数据
+      _this.ergodic()
+      // 每隔60s定时更新数据
+      _this.setInterval = setInterval(function () {
+        _this.ergodic()
+      }, 60000)
     },
     // 遍历异步磁贴
     ergodic () {
@@ -567,6 +583,10 @@ export default {
       }
     })
     this.initdesktopData()
+  },
+  beforeDestroy () {
+    clearInterval(this.setInterval)
+    this.setInterval = ''
   }
 }
 </script>
