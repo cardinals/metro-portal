@@ -350,7 +350,7 @@
                 <div class="selfRight">
                   <span>图标预览：</span>
                   <div class="imgCtn">
-                    <img :src="newPatch.selfPhoto" />
+                    <img :src="imgFilter(newPatch.selfPhoto)" />
                   </div>
                 </div>
               </div>
@@ -376,6 +376,7 @@
 <script>
 import { patchList, deletePatch, cancelPatch, addPatch, removePatch, roleAndIcon, createPatch, editPatch, logout, userRole, validationTitle, validationApiInfo } from '@/api/api.js'
 import { Message } from 'element-ui'
+import defPhoto from '@/assets/image/defPhoto.js'
 export default {
   data () {
     return {
@@ -406,8 +407,7 @@ export default {
         applicationurl: '',
         applicationdescribe: '',
         roles: [],
-        selfPhoto: require('@/assets/image/defPhoto.png'),
-        selfBase64: '',
+        selfPhoto: defPhoto,
         pictureid: '',
         apiurl: '',
         showExplanation: true,
@@ -520,7 +520,7 @@ export default {
     },
     // 显示图片filter
     imgFilter (val) {
-      return window.URL.createObjectURL(this.base64ToBlob('data:image/png;base64,' + val, 'image/png'))
+      return 'data:image/png;base64,' + val
     },
     // 文件上传
     fileChange (file, fileList) {
@@ -534,11 +534,10 @@ export default {
       }
       if (isJPG && isLt2M) {
         let _this = this
-        this.newPatch.selfPhoto = URL.createObjectURL(file.raw)
         let reader = new FileReader()
         reader.onload = () => {
           let _base64 = reader.result
-          _this.newPatch.selfBase64 = _base64
+          _this.newPatch.selfPhoto = _base64.split(',')[1]
         }
         reader.readAsDataURL(file.raw)
       }
@@ -679,7 +678,7 @@ export default {
         // 先处理部分数据
         newPatch.enable = newPatch.enable === true ? 1 : 0
         // 判定最后选了哪个图
-        let img = this.showWhich === '图标库' ? newPatch.photo : newPatch.selfBase64 === '' ? newPatch.photo : newPatch.selfBase64.split(',')[1]
+        let img = this.showWhich === '图标库' ? newPatch.photo : newPatch.selfPhoto === defPhoto ? newPatch.photo : newPatch.selfPhoto
         let editParams = {
           photo: img,
           picturetype: newPatch.picturetype,
@@ -730,8 +729,7 @@ export default {
         applicationurl: '',
         applicationdescribe: '',
         roles: [],
-        selfPhoto: require('@/assets/image/defPhoto.png'),
-        selfBase64: '',
+        selfPhoto: defPhoto,
         pictureid: '',
         apiurl: '',
         showExplanation: true,
@@ -752,7 +750,19 @@ export default {
     // 编辑贴片
     editModel (info) {
       if (info.picturetype === 'style-icon') {
-        this.newPatch.photo = info.picturecontent
+        let flag = false
+        this.iconList.map((item) => {
+          if (item.content === info.picturecontent) {
+            flag = true
+          }
+        })
+        if (flag) {
+          this.newPatch.photo = info.picturecontent
+          this.showWhich = '图标库'
+        } else {
+          this.newPatch.selfPhoto = info.picturecontent
+          this.showWhich = '自定义图标'
+        }
       }
       if (info.picturetype === 'style-list' || info.picturetype === 'style-num') {
         this.newPatch.apiurl = info.picturecontent.apiurl
