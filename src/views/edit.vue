@@ -835,6 +835,9 @@ export default {
 </script>
 
 <style>
+.rightCtn input{
+  border-radius: 21px;
+}
 .editCtn .el-table th, .el-table tr{
   background: transparent;
 }
