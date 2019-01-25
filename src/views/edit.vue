@@ -124,9 +124,9 @@
             <template slot-scope="scope">
               <!-- 操作分已添加，待添加，已删除状态 -->
               <!-- 编辑操作已添加和待添加状态，管理员可以使用 -->
-              <span v-if="role&&types!=='已删除'" :name="scope.row.name" class="opration opration1" @click="editModel(scope.row)">编辑</span>
+              <span v-if="role&&types!=='已删除'" class="opration opration1" @click="editModel(scope.row)">编辑</span>
               <!-- 添加操作只有待添加状态有 -->
-              <span v-if="types==='待添加'" :name="scope.row.name" class="opration" :class="{'opration2':role}">
+              <span v-if="types==='待添加'" class="opration" :class="{'opration2':role}">
                 <el-dropdown trigger="click" @command="handleCommand">
                   <span class="el-dropdown-link">
                     添加
@@ -137,12 +137,12 @@
                 </el-dropdown>
               </span>
               <!-- 删除操作只有待添加状态有 -->
-              <span v-if="types==='待添加'" :name="scope.row.name" class="opration opration3" @click="deleteModel(scope.row.pictureid)">删除</span>
+              <span v-if="types==='待添加'" class="opration opration3" @click="deleteModel(scope.row.pictureid)">删除</span>
               <!-- 取消添加只有已添加状态有 -->
-              <span v-if="types==='已添加'"  :name="scope.row.applicationtitle" class="opration" :class="{'opration4':role}" @click="cancelModel(scope.row.pictureid,0)">取消添加</span>
+              <span v-if="types==='已添加'" class="opration" :class="{'opration4':role}" @click="cancelModel(scope.row.pictureid,0)">取消添加</span>
               <!-- 取消删除和彻底删除只有已删除状态有 -->
-              <span v-if="types==='已删除'" :name="scope.row.applicationtitle" class="opration opration5" @click="cancelModel(scope.row.pictureid,1)">取消删除</span>
-              <span v-if="role&&types==='已删除'" :name="scope.row.applicationtitle" class="opration opration6" @click="removeModel(scope.row.pictureid)">彻底删除</span>
+              <span v-if="types==='已删除'" class="opration opration5" @click="cancelModel(scope.row.pictureid,1)">取消删除</span>
+              <span v-if="role&&types==='已删除'" class="opration opration6" @click="removeModel(scope.row.pictureid)">彻底删除</span>
             </template>
           </el-table-column>
           <template slot="empty">
