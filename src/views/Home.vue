@@ -48,14 +48,14 @@
           @drop="drop"
           @dragover="dragover">
           <!-- 文件夹名称，上级出发修改，span标签变成input标签 -->
-          <div class="marks" @dblclick="model.fileTitleEditFlag=true">
+          <div class="marks">
             <!-- desktopEditFlag控制未命名文件夹在桌面编辑/未编辑状态 -->
             <!-- fileTitleEditFlag控制文件夹编辑/未编辑状态 -->
             <span v-if="!desktopEditFlag" v-show="!model.fileTitleEditFlag">{{model.title === ('未命名'+ (modelIndex+1)) ?'':model.title}}</span>
             <span v-if="desktopEditFlag" v-show="!model.fileTitleEditFlag">{{model.title}}</span>
             <input v-show="model.fileTitleEditFlag" v-model="model.title" @blur="saveFileTitle(modelKey,modelIndex)"/>
             <!-- 在css中控制显示状态 -->
-            <img src="@/assets/image/icon_edit_blue.png" />
+            <img @click="model.fileTitleEditFlag=true" src="@/assets/image/icon_edit_blue.png" />
           </div>
           <!-- 磁贴区域 -->
           <div @click="openMetroUrl(item.applicationurl,item.applicationenable)" v-for="item in model.data" :id="item.pictureid" :key="item.pictureid" :class="item.picturesize + ' ' + item.picturetype + ' ' + item.bgcolor" :style="{'background':item.applicationenable===0?'#8b8f92!important':''}"  class="metro" :draggable="desktopEditFlag" @dragstart="dragstart">
