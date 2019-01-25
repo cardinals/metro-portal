@@ -646,7 +646,7 @@ export default {
             this.realApi = false
             return ''
           }
-          let res = await validationApiInfo({ apiurl: newPatch.apiurl })
+          let res = await validationApiInfo({ apiurl: newPatch.apiurl, type: newPatch.picturetype === 'style-text' ? 'text' : 'list' })
           if (res.data.code === 1) {
             if (newPatch.picturetype === 'style-num' || newPatch.picturetype === 'style-list') {
               this.apiContent = res.data.data
