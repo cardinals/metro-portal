@@ -167,19 +167,19 @@
                 <span>类型：</span>
               </div>
               <div class="selcet" :class="{'active':newPatch.picturetype === 'style-icon'}">
-                <i class="circle"></i>
+                <i class="circle" @click="newPatch.picturetype='style-icon'"></i>
                 <span @click="newPatch.picturetype='style-icon'">图标</span>
               </div>
               <div class="selcet" :class="{'active':newPatch.picturetype === 'style-num'}">
-                <i class="circle"></i>
+                <i class="circle" @click="newPatch.picturetype='style-num'"></i>
                 <span @click="newPatch.picturetype='style-num'">数字</span>
               </div>
               <div class="selcet" :class="{'active':newPatch.picturetype === 'style-list'}">
-                <i class="circle"></i>
+                <i class="circle" @click="newPatch.picturetype='style-list'"></i>
                 <span @click="newPatch.picturetype='style-list'">数字列表</span>
               </div>
               <div class="selcet" :class="{'active':newPatch.picturetype === 'style-text'}">
-                <i class="circle"></i>
+                <i class="circle" @click="newPatch.picturetype='style-text'"></i>
                 <span @click="newPatch.picturetype='style-text'">文字列表</span>
               </div>
             </div>
