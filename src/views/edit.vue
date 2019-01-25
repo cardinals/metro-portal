@@ -144,14 +144,18 @@
               <span v-if="role&&types==='已删除'" :name="scope.row.applicationtitle" class="opration opration6" @click="removeModel(scope.row.pictureid)">彻底删除</span>
             </template>
           </el-table-column>
+          <template slot="empty">
+            <div class="nodataImage" v-if="showWhichList.filter(data => !search || data.applicationtitle.toLowerCase().includes(search.toLowerCase())).length===0"></div>
+            <span class="nodataText">清单为空</span>
+          </template>
         </el-table>
       </div>
     </div>
     <div class="footer">
       <div class="line1">
-        <!-- <span>帮助</span>
+        <span>帮助</span>
         <span>隐私</span>
-        <span>条款</span> -->
+        <span>条款</span>
       </div>
       <div class="line2">copyright©2018 银江股份</div>
     </div>

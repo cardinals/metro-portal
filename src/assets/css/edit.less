@@ -121,7 +121,7 @@
   }
   .content{
     width: 1200px;
-    margin:0 auto 155px auto;
+    margin:0 auto 100px auto;
     .select{
       margin-top: 27px;
       .button{
@@ -140,6 +140,7 @@
     .tableCtn{
       background: #ffffff;
       padding: 25px 15px;
+      min-height: 700px;
       .headTitle{
         font-size:16px;
         line-height: 32px;
@@ -206,6 +207,17 @@
           color:#FF282F;
         }
       }
+      .nodataImage{
+        width: 250px;
+        height: 250px;
+        margin: 80px auto 0 auto;
+        background: url('../image/nodata.png')
+      }
+      .nodataText{
+        color: #666666;
+        font-size: 18px;
+        line-height: 26px;
+      }
     }
   }
   .footer{
@@ -213,13 +225,12 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 155px;
+    height: 70px;
     .line1{
-      margin-top: 60px;
       text-align: center;
       span{
         line-height: 15px;
-        padding:0 26px;
+        padding:0 10px;
         font-size: 12px;
         color:#6E6E6E;
         &:nth-child(2){
