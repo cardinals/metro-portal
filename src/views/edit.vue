@@ -102,8 +102,10 @@
           <el-table-column
             prop="status"
             label="是否启用"
-            width="90"
-            align="center">
+            width="120"
+            align="center"
+            :filters="[{text: '启用', value: true},{text: '停用', value: false}]"
+            :filter-method="filterHandler">>
             <template slot="header" slot-scope="scope">
               <span class="headTitle" :key="scope.applicationenable">是否启用</span>
             </template>
@@ -113,7 +115,7 @@
           </el-table-column>
           <el-table-column
             label="操作"
-            width="280"
+            width="250"
             align="center">
             <template slot="header" slot-scope="scope">
               <span class="headTitle" :key="scope.name">操作</span>
