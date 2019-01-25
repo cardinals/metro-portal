@@ -16,7 +16,7 @@
             <img class="hover" src="@/assets/image/setting.png" />
           </div>
           <div class="selfCtn">
-            <el-dropdown @command="userOprate" trigger="click">
+            <el-dropdown @command="userOprate">
               <div class="imgCtn">
                 <img class="unhover" src="@/assets/image/head.png" />
                 <img class="hover" src="@/assets/image/heads.png" />
