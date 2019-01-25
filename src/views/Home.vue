@@ -60,7 +60,10 @@
           <div @click="openMetroUrl(item.applicationurl,item.applicationenable)" v-for="item in model.data" :id="item.pictureid" :key="item.pictureid" :class="item.picturesize + ' ' + item.picturetype + ' ' + item.bgcolor" :style="{'background':item.applicationenable===0?'#8b8f92!important':''}"  class="metro" :draggable="desktopEditFlag" @dragstart="dragstart">
             <!-- 取消添加，需要单独调用接口 -->
             <i class="cancle" @click.stop="cancleModel(item.pictureid)"><span>×</span></i>
-            <span class="title">{{item.applicationtitle}}</span>
+            <el-tooltip v-if="item.picturesize==='sizes'?item.applicationtitle.length>6:item.applicationtitle.length>15" effect="dark" :content="item.applicationtitle" placement="top">
+              <span class="title">{{item.applicationtitle}}</span>
+            </el-tooltip>
+            <span class="title" v-else>{{item.applicationtitle}}</span>
             <!-- 判断四种类型 -->
               <!-- 图标类型 -->
             <div v-if="item.picturetype === 'style-icon'" class="img" :style="{backgroundImage:'url(data:image/png;base64,' + item.picturecontent + ')'}"></div>
