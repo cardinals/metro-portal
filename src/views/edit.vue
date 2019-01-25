@@ -8,10 +8,11 @@
               <div class="imgCtn">
                 <img class="unhover" src="@/assets/image/head.png" />
                 <img class="hover" src="@/assets/image/heads.png" />
+                <i style="vertical-align:middle;line-height:44px;color:#ABDAFF" class="el-icon-arrow-down"></i>
               </div>
-              <i style="vertical-align:middle;line-height:44px;color:#ABDAFF" class="el-icon-arrow-down"></i>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item commond='logout'>注销</el-dropdown-item>
+                <el-dropdown-item disabled>{{name}}</el-dropdown-item>
+                <el-dropdown-item commond='logout' divided>退出</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
@@ -398,6 +399,7 @@ export default {
       deletedList: [], // 已删除
       iconList: [], // 图标库
       roleList: [], // 角色库
+      name: '',
       role: false,
       realUrl: true, // 判断输入的网址是否为真
       realTitle: true, // 判断输入标题是否正确
@@ -791,15 +793,17 @@ export default {
       this.showWindowFlag = true
     },
     // 用户操作
-    async userOprate () {
-      let res = await logout()
-      if (res.data.code === 1) {
-        Message({
-          type: 'success',
-          message: '注销成功',
-          duration: 2000
-        })
-        this.$router.push('/login')
+    async userOprate (cmd) {
+      if (cmd === 'logout') {
+        let res = await logout()
+        if (res.data.code === 1) {
+          Message({
+            type: 'success',
+            message: '注销成功',
+            duration: 2000
+          })
+          this.$router.push('/login')
+        }
       }
     },
     // 打开链接
@@ -829,48 +833,12 @@ export default {
     this.roleList = roleAndIconRes.data.data.role
     // 初始化用户角色
     let userRoleRes = await userRole()
+    this.name = userRoleRes.data.data.name
     this.role = userRoleRes.data.data.role
   }
 }
 </script>
 
-<style>
-.rightCtn input{
-  border-radius: 21px;
-}
-.editCtn .el-table th, .el-table tr{
-  background: transparent;
-}
-.editCtn .el-table__footer-wrapper, .el-table__header-wrapper{
-  box-sizing: border-box;
-  background: #FAFAFA;
-  border:1px solid #E8E8E8;
-  border-bottom: 0;
-}
-.editCtn .el-table__column-filter-trigger i{
-  font-size: 16px;
-  font-weight: bold;
-  margin-left: 6px;
-}
- /* table:before有一条线层级较高，影响弹框显示，暂时不知道这条线的用途 */
-.editCtn .el-table::before{
-  height: 0;
-}
-.editCtn .el-select{
-  width: 80%;
-}
-
-.opration span{
-  font-size: 16px!important;
-}
-.opration .el-dropdown{
-  color: #63BAFF;
-}
-
-el-upload-list el-upload-list--text{
-  display: none;
-}
-</style>
 <style lang="less" scoped>
   @import '~@/assets/css/edit.less';
 </style>

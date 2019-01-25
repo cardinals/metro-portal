@@ -16,15 +16,16 @@
             <img class="hover" src="@/assets/image/setting.png" />
           </div>
           <div class="selfCtn">
-            <el-dropdown @command="userOprate">
+            <el-dropdown @command="userOprate" trigger="click">
               <div class="imgCtn">
                 <img class="unhover" src="@/assets/image/head.png" />
                 <img class="hover" src="@/assets/image/heads.png" />
+                <i style="vertical-align:middle;line-height:44px;color:#ABDAFF" class="el-icon-arrow-down"></i>
               </div>
-              <i style="vertical-align:middle;line-height:44px;color:#ABDAFF" class="el-icon-arrow-down"></i>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item v-if="!role" style="text-align:center" command='fallback'>一键还原</el-dropdown-item>
-                <el-dropdown-item style="text-align:center" command='logout'>注销</el-dropdown-item>
+                <el-dropdown-item disabled>{{name}}</el-dropdown-item>
+                <el-dropdown-item command='logout' divided>退出</el-dropdown-item>
+                <el-dropdown-item v-if="!role" command='fallback'>一键还原</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
@@ -160,6 +161,7 @@ export default {
       oldFatherId: '', // 存储元素被拖拽时的初始father容器
       fileTitleEditFlag: false,
       loaded: false, // 数据加载完毕
+      name: '',
       role: null, // 角色信息
       // 数字滚动配置项
       ICountUp: {
@@ -521,7 +523,8 @@ export default {
             _this.initdesktopData()
           }
         })
-      } else {
+      }
+      if (cmd === 'logout') {
         logout().then((res) => {
           if (res.data.code === 1) {
             Message({
@@ -582,6 +585,7 @@ export default {
       if (res.data.code !== 1) {
         _this.$router.push('/login')
       } else {
+        _this.name = res.data.data.name
         _this.role = res.data.data.role
       }
     })

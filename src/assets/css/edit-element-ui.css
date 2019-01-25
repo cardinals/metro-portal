@@ -1,0 +1,60 @@
+.el-dropdown-menu{
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  border: 0 !important;
+  box-shadow: 0 !important;
+  text-align: center;
+}
+.el-dropdown-menu .popper__arrow, .el-dropdown-menu .popper__arrow:after{
+  border-bottom-color: rgba(0, 0, 0, 0.3) !important;
+}
+.el-dropdown-menu__item{
+  color: rgba(255, 255, 255, 1) !important;
+  background-color: transparent !important;
+}
+.el-dropdown-menu__item:hover{
+  color: red !important;
+  background-color: transparent !important;
+}
+.el-dropdown-menu__item--divided{
+  margin: 0 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+.el-dropdown-menu__item--divided::before{
+  height: 0 !important;
+}
+
+.rightCtn input{
+  border-radius: 21px;
+}
+.editCtn .el-table th, .el-table tr{
+  background: transparent;
+}
+.editCtn .el-table__footer-wrapper, .el-table__header-wrapper{
+  box-sizing: border-box;
+  background: #FAFAFA;
+  border:1px solid #E8E8E8;
+  border-bottom: 0;
+}
+.editCtn .el-table__column-filter-trigger i{
+  font-size: 16px;
+  font-weight: bold;
+  margin-left: 6px;
+}
+ /* table:before有一条线层级较高，影响弹框显示，暂时不知道这条线的用途 */
+.editCtn .el-table::before{
+  height: 0;
+}
+.editCtn .el-select{
+  width: 80%;
+}
+
+.opration span{
+  font-size: 16px!important;
+}
+.opration .el-dropdown{
+  color: #63BAFF;
+}
+
+.el-upload-list .el-upload-list--text{
+  display: none;
+}
