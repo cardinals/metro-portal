@@ -347,7 +347,7 @@
                       :file-list="fileList"
                       >
                       <el-button size="small" type="primary" icon="el-icon-picture">选择图片</el-button>
-                      <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过2Mb</div>
+                      <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过1Mb</div>
                       <div slot="tip" class="el-upload__tip">最佳尺寸：150像素*150像素</div>
                     </el-upload>
                   </div>
@@ -506,23 +506,6 @@ export default {
       const property = column['property']
       return row[property].split('-')[1] === value
     },
-    // base64解码
-    base64ToBlob (urlData, type) {
-      let arr = urlData.split(',')
-      let mime = arr[0].match(/:(.*?);/)[1] || type
-      // 去掉url的头，并转化为byte
-      let bytes = window.atob(arr[1])
-      // 处理异常,将ascii码小于0的转换为大于0
-      let ab = new ArrayBuffer(bytes.length)
-      // 生成视图（直接针对内存）：8位无符号整数，长度1个字节
-      let ia = new Uint8Array(ab)
-      for (let i = 0; i < bytes.length; i++) {
-        ia[i] = bytes.charCodeAt(i)
-      }
-      return new Blob([ab], {
-        type: mime
-      })
-    },
     // 显示图片filter
     imgFilter (val) {
       return 'data:image/png;base64,' + val
@@ -530,14 +513,14 @@ export default {
     // 文件上传
     fileChange (file, fileList) {
       const isJPG = file.raw.type === 'image/jpeg' || file.raw.type === 'image/png'
-      const isLt2M = file.size / 1024 / 1024 < 2
+      const isLt1M = file.size / 1024 / 1024 < 1
       if (!isJPG) {
         this.$message.error('上传图片只能是 JPG/PNG 格式!')
       }
-      if (!isLt2M) {
-        this.$message.error('上传图片大小不能超过 2MB!')
+      if (!isLt1M) {
+        this.$message.error('上传图片大小不能超过 1MB!')
       }
-      if (isJPG && isLt2M) {
+      if (isJPG && isLt1M) {
         let _this = this
         let reader = new FileReader()
         reader.onload = () => {
