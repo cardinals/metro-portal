@@ -241,14 +241,15 @@
             </div>
           </div>
           <el-form :model="newPatch" ref="newPatch1" label-width="100px"  class="wContent form" :class="{'wContentL':step>2,'wContentM':step===2,'wContentR':step<2}">
-            <el-form-item label="系统名称：" prop="applicationtitle" :rules="[{ required: true, message: '系统名称不能为空'}, { validator: checkTitle, trigger: 'blur' }]">
+            <el-form-item label="系统名称：" prop="applicationtitle" :rules="[{ required: true, message: '系统名称不能为空'},
+            { max: 14, message: '长度请控制在 14 个字符以内', trigger: ['blur', 'change'] }, { validator: checkTitle, trigger: 'blur' }]">
               <el-input placeholder="请输入系统名称(必填项)" v-model="newPatch.applicationtitle"></el-input>
             </el-form-item>
             <el-form-item label="系统地址：" prop="applicationurl" :rules="[{ required: true, message: '系统地址不能为空'}, { type: 'url', message: '系统地址格式不正确', trigger: ['blur', 'change'] }]">
               <el-input style="width:80%;margin-right:15px;" placeholder="请输入系统地址(必填项)" v-model="newPatch.applicationurl"></el-input>
               <el-button type="primary" @click="openUrl(newPatch.applicationurl)">测试跳转</el-button>
             </el-form-item>
-            <el-form-item label="系统简介：">
+            <el-form-item label="系统简介：" prop="applicationdescribe" :rules="[{ max: 24, message: '长度请控制在 24 个字符以内', trigger: ['blur', 'change'] }]">
               <el-input placeholder="请输入对于系统的介绍说明" v-model="newPatch.applicationdescribe"></el-input>
             </el-form-item>
             <el-form-item label="是否启用：">
@@ -264,7 +265,7 @@
                <div class="explanation-content bg-num" v-if="newPatch.showExplanation"></div>
                <div class="explanation-fold" @click="newPatch.showExplanation=!newPatch.showExplanation">{{newPatch.showExplanation?'收起 ∧':'展开 ∨'}}</div>
             </div>
-            <el-form-item label="内容标题：" prop="contentdata[0].title" :rules="[{ required: true, message: '内容标题不能为空'}]">
+            <el-form-item label="内容标题：" prop="contentdata[0].title" :rules="[{ required: true, message: '内容标题不能为空'},{ max: 8, message: '长度请控制在 8 个字符以内', trigger: ['blur', 'change'] }]">
               <el-input placeholder="填写字段名称" v-model="newPatch.contentdata[0].title" ></el-input>
             </el-form-item>
             <el-form-item label="内容字段：" prop="contentdata[0].filedkey" :rules="[{ required: true, message: '内容字段不能为空'}]">
@@ -293,7 +294,7 @@
                <div class="explanation-fold" @click="newPatch.showExplanation=!newPatch.showExplanation">{{newPatch.showExplanation?'收起':'展开'}}</div>
             </div>
             <div style="width:100%;" v-for="(item,index) in newPatch.contentdata" :key="`title${index}`">
-            <el-form-item label="内容标题：" :prop="`contentdata[${index}].title`" :rules="[{ required: true, message: '内容标题不能为空'}]">
+            <el-form-item label="内容标题：" :prop="`contentdata[${index}].title`" :rules="[{ required: true, message: '内容标题不能为空'},{ max: 8, message: '长度请控制在 8 个字符以内', trigger: ['blur', 'change'] }]">
               <el-input placeholder="填写字段名称" v-model="item.title"></el-input>
             </el-form-item>
             <el-form-item label="内容字段：" :prop="`contentdata[${index}].filedkey`" :rules="[{ required: true, message: '内容字段不能为空'}]">
