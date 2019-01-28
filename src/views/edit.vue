@@ -240,14 +240,13 @@
               </div>
             </div>
           </div>
-          <el-form :model="newPatch" ref="newPatch" label-width="100px"  class="wContent form" :class="{'wContentL':step>2,'wContentM':step===2,'wContentR':step<2}">
+          <el-form :model="newPatch" ref="newPatch1" label-width="100px"  class="wContent form" :class="{'wContentL':step>2,'wContentM':step===2,'wContentR':step<2}">
             <el-form-item label="系统名称：" prop="applicationtitle" :rules="[{ required: true, message: '系统名称不能为空'}, { validator: checkTitle, trigger: 'blur' }]">
               <el-input placeholder="请输入系统名称(必填项)" v-model="newPatch.applicationtitle"></el-input>
             </el-form-item>
             <el-form-item label="系统地址：" prop="applicationurl" :rules="[{ required: true, message: '系统地址不能为空'}, { type: 'url', message: '系统地址格式不正确', trigger: ['blur', 'change'] }]">
-              <el-input placeholder="请输入系统地址(必填项)" v-model="newPatch.applicationurl">
-              <el-button slot="append" @click="openUrl(newPatch.applicationurl)">测试</el-button>
-              </el-input>
+              <el-input style="width:80%;margin-right:15px;" placeholder="请输入系统地址(必填项)" v-model="newPatch.applicationurl"></el-input>
+              <el-button type="primary" @click="openUrl(newPatch.applicationurl)">测试跳转</el-button>
             </el-form-item>
             <el-form-item label="系统简介：">
               <el-input placeholder="请输入对于系统的介绍说明" v-model="newPatch.applicationdescribe"></el-input>
@@ -255,13 +254,11 @@
             <el-form-item label="是否启用：">
                <el-switch v-model="newPatch.enable" active-color="#0078D7" inactive-color="#EEEEEE"></el-switch>
             </el-form-item>
-            <el-form-item label="API地址：" prop="apiurl" :rules="[{ required: true, message: 'API地址不能为空'}, { type: 'url', message: 'API地址格式不正确', trigger: ['blur', 'change'] }]" v-if="newPatch.picturetype!=='style-icon'">
-              <el-input placeholder="填写内容接口(必填项)" v-model="newPatch.apiurl">
-              <el-button slot="append" @click="openUrl(newPatch.apiurl)">测试</el-button>
-              </el-input>
+            <el-form-item label="API地址：" prop="apiurl" :rules="[{ required: true, message: 'API地址不能为空'}, { type: 'url', message: 'API地址格式不正确', trigger: ['blur', 'change'] },{ validator: checkAPI, trigger: 'blur' }]" v-if="newPatch.picturetype!=='style-icon'">
+              <el-input placeholder="填写内容接口(必填项)" v-model="newPatch.apiurl"></el-input>
             </el-form-item>
           </el-form>
-          <el-form :model="newPatch" ref="newPatch" label-width="100px"  class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-num'">
+          <el-form :model="newPatch" ref="newPatch2" label-width="100px"  class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-num'">
             <div class="explanation">
                <div class="explanation-title">填写说明：</div>
                <div class="explanation-content bg-num" v-if="newPatch.showExplanation"></div>
@@ -276,7 +273,7 @@
               </el-select>
             </el-form-item>
           </el-form>
-          <el-form :model="newPatch" ref="newPatch" label-width="100px"  class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-text'">
+          <el-form :model="newPatch" ref="newPatch3" label-width="100px"  class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-text'">
             <div class="explanation">
                <div class="explanation-title">填写说明：</div>
                <div class="explanation-content bg-text" v-if="newPatch.showExplanation"></div>
@@ -289,7 +286,7 @@
                 <el-input v-model="newPatch.contentdata[0].filedkey" disabled/>
             </el-form-item>
           </el-form>
-          <el-form :model="newPatch" ref="newPatch" label-width="100px" :inline="true" class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-list'">
+          <el-form :model="newPatch" ref="newPatch4" label-width="100px" :inline="true" class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-list'">
             <div class="explanation">
                <div class="explanation-title">填写说明：</div>
                <div class="explanation-content bg-list" v-if="newPatch.showExplanation"></div>
@@ -363,7 +360,7 @@
               </div>
             </div>
           </div>
-          <el-form :model="newPatch" ref="newPatch" label-width="100px"  class="wContent form" :class="{'wContentL':step>4,'wContentM':step===4,'wContentR':step<4}">
+          <el-form :model="newPatch" ref="newPatch5" label-width="100px"  class="wContent form" :class="{'wContentL':step>4,'wContentM':step===4,'wContentR':step<4}">
             <el-form-item label="可见角色：" prop="roles" :rules="[{ required: true, message: '可见角色不能为空'}]">
               <el-select v-model="newPatch.roles" multiple placeholder="请选择">
                 <el-option v-for="item in roleList" :key="item.roleid" :label="item.rolename" :value="item.roleid"></el-option>
@@ -401,9 +398,8 @@ export default {
       roleList: [], // 角色库
       name: '',
       role: false,
-      realUrl: true, // 判断输入的网址是否为真
       realTitle: true, // 判断输入标题是否正确
-      realApi: true, // 判断输入Api地址是否正确
+      realAPI: true, // 判断输入Api地址是否正确
       search: '', // 搜索
       newPatch: {
         photo: '', // 保存base64
@@ -633,96 +629,90 @@ export default {
       }
       // 第二步验证必填项是否为空
       if (this.step === 2) {
-        if (newPatch.applicationtitle === '' || this.realTitle === false) {
-          this.realTitle = false
-          return ''
-        }
-        if (newPatch.applicationurl === '' || this.realUrl === false) {
-          this.realUrl = false
-          return ''
-        }
-        if (newPatch.picturetype !== 'style-icon') {
-          if (newPatch.apiurl === '' || this.realApi === false) {
-            this.realApi = false
-            return ''
-          }
-          let res = await validationApiInfo({ apiurl: newPatch.apiurl, type: newPatch.picturetype === 'style-text' ? 'text' : 'list' })
-          if (res.data.code === 1) {
-            if (newPatch.picturetype === 'style-num' || newPatch.picturetype === 'style-list') {
-              this.apiContent = res.data.data
+        this.$refs['newPatch1'].validate((valid) => {
+          if (valid) {
+            if (this.realTitle === false) {
+              return ''
             }
-            if (newPatch.picturetype === 'style-text') {
-              newPatch.contentdata[0].title = 'time'
-              newPatch.contentdata[0].filedkey = 'content'
+            if (newPatch.picturetype !== 'style-icon' && this.realAPI === false) {
+              return ''
             }
-          } else {
-            Message({
-              type: 'error',
-              message: res.data.message,
-              duration: 2000
-            })
-            return ''
+            this.step++
           }
-        }
-        this.step++
+        })
         return ''
       }
       // 第三步
       if (this.step === 3) {
-        this.step++
+        if (newPatch.picturetype === 'style-icon' || newPatch.picturetype === 'style-text') {
+          this.step++
+        }
+        if (newPatch.picturetype === 'style-num') {
+          this.$refs['newPatch2'].validate((valid) => {
+            if (valid) {
+              this.step++
+            }
+          })
+        }
+        if (newPatch.picturetype === 'style-list') {
+          this.$refs['newPatch4'].validate((valid) => {
+            if (valid) {
+              this.step++
+            }
+          })
+        }
         return ''
       }
       // 第四步
       if (this.step === 4) {
-        // 提交之前先验证必填项是否为空
-        if (newPatch.roles.length === 0) {
-          Message({
-            type: 'error',
-            message: '请选择可见角色',
-            duration: 2000
-          })
-          return ''
-        }
-        // 先处理部分数据
-        newPatch.enable = newPatch.enable === true ? 1 : 0
-        // 判定最后选了哪个图
-        let img = this.showWhich === '图标库' ? newPatch.photo : newPatch.selfPhoto === defPhoto ? newPatch.photo : newPatch.selfPhoto
-        let editParams = {
-          photo: img,
-          picturetype: newPatch.picturetype,
-          pictureid: newPatch.pictureid,
-          enable: newPatch.enable,
-          applicationtitle: newPatch.applicationtitle,
-          applicationurl: newPatch.applicationurl,
-          applicationdescribe: newPatch.applicationdescribe,
-          roles: newPatch.roles,
-          refreshflag: 1,
-          apiurl: newPatch.apiurl,
-          contentdata: newPatch.contentdata
-        }
-        let createParams = {
-          photo: img,
-          picturetype: newPatch.picturetype,
-          picturesize: newPatch.picturesize,
-          bgcolor: newPatch.bgcolor,
-          enable: newPatch.enable,
-          applicationtitle: newPatch.applicationtitle,
-          applicationurl: newPatch.applicationurl,
-          applicationdescribe: newPatch.applicationdescribe,
-          roles: newPatch.roles,
-          refreshflag: 1,
-          apiurl: newPatch.apiurl,
-          contentdata: newPatch.contentdata
-        }
-        let res = this.editFlag ? await editPatch(editParams) : await createPatch(createParams)
-        Message({
-          type: res.data.code === 1 ? 'success' : 'error',
-          message: res.data.message,
-          duration: 2000
+        this.$refs['newPatch5'].validate((valid) => {
+          if (valid) {
+            this.uploadPatchData(newPatch)
+          }
         })
-        this.initData()
-        this.initWindow()
       }
+    },
+    // 上传新增/编辑磁贴的数据
+    async uploadPatchData (newPatch) {
+      // 先处理部分数据
+      newPatch.enable = newPatch.enable === true ? 1 : 0
+      // 判定最后选了哪个图
+      let img = this.showWhich === '图标库' ? newPatch.photo : newPatch.selfPhoto === defPhoto ? newPatch.photo : newPatch.selfPhoto
+      let editParams = {
+        photo: img,
+        picturetype: newPatch.picturetype,
+        pictureid: newPatch.pictureid,
+        enable: newPatch.enable,
+        applicationtitle: newPatch.applicationtitle,
+        applicationurl: newPatch.applicationurl,
+        applicationdescribe: newPatch.applicationdescribe,
+        roles: newPatch.roles,
+        refreshflag: 1,
+        apiurl: newPatch.apiurl,
+        contentdata: newPatch.contentdata
+      }
+      let createParams = {
+        photo: img,
+        picturetype: newPatch.picturetype,
+        picturesize: newPatch.picturesize,
+        bgcolor: newPatch.bgcolor,
+        enable: newPatch.enable,
+        applicationtitle: newPatch.applicationtitle,
+        applicationurl: newPatch.applicationurl,
+        applicationdescribe: newPatch.applicationdescribe,
+        roles: newPatch.roles,
+        refreshflag: 1,
+        apiurl: newPatch.apiurl,
+        contentdata: newPatch.contentdata
+      }
+      let res = this.editFlag ? await editPatch(editParams) : await createPatch(createParams)
+      Message({
+        type: res.data.code === 1 ? 'success' : 'error',
+        message: res.data.message,
+        duration: 2000
+      })
+      this.initData()
+      this.initWindow()
     },
     // 点击取消或者右上角的关闭按钮需要初始化窗口信息
     initWindow () {
@@ -750,10 +740,14 @@ export default {
       this.showWindowFlag = false
       this.editFlag = false
       this.step = 1
-      this.realUrl = true
       this.realTitle = true
-      this.realApi = true
+      this.realAPI = true
       this.apiContent = []
+      this.$refs['newPatch1'].resetFields()
+      this.$refs['newPatch2'].resetFields()
+      this.$refs['newPatch3'].resetFields()
+      this.$refs['newPatch4'].resetFields()
+      this.$refs['newPatch5'].resetFields()
     },
     // 编辑贴片
     editModel (info) {
@@ -819,7 +813,23 @@ export default {
       })
       this.realTitle = res.data.code === 1
       res.data.code === 1 ? callback() : callback(new Error('系统名称不能重名'))
+    },
+    // 检查API是否符合规定
+    async checkAPI (rule, value, callback) {
+      let res = await validationApiInfo({ apiurl: this.newPatch.apiurl, type: this.newPatch.picturetype === 'style-text' ? 'text' : 'list' })
+      this.realAPI = res.data.code === 1
+      res.data.code === 1 ? callback() : callback(new Error(res.data.message))
+      if (res.data.code === 1) {
+        if (this.newPatch.picturetype === 'style-num' || this.newPatch.picturetype === 'style-list') {
+          this.apiContent = res.data.data
+        }
+        if (this.newPatch.picturetype === 'style-text') {
+          this.newPatch.contentdata[0].title = 'time'
+          this.newPatch.contentdata[0].filedkey = 'content'
+        }
+      }
     }
+
   },
   async mounted () {
     // 初始化列表
