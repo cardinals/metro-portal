@@ -347,7 +347,7 @@
                       :file-list="fileList"
                       >
                       <el-button size="small" type="primary" icon="el-icon-picture">选择图片</el-button>
-                      <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过2Mb</div>
+                      <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过1Mb</div>
                       <div slot="tip" class="el-upload__tip">最佳尺寸：150像素*150像素</div>
                     </el-upload>
                   </div>
@@ -530,14 +530,14 @@ export default {
     // 文件上传
     fileChange (file, fileList) {
       const isJPG = file.raw.type === 'image/jpeg' || file.raw.type === 'image/png'
-      const isLt2M = file.size / 1024 / 1024 < 2
+      const isLt1M = file.size / 1024 / 1024 < 1
       if (!isJPG) {
         this.$message.error('上传图片只能是 JPG/PNG 格式!')
       }
-      if (!isLt2M) {
-        this.$message.error('上传图片大小不能超过 2MB!')
+      if (!isLt1M) {
+        this.$message.error('上传图片大小不能超过 1MB!')
       }
-      if (isJPG && isLt2M) {
+      if (isJPG && isLt1M) {
         let _this = this
         let reader = new FileReader()
         reader.onload = () => {
