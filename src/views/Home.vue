@@ -20,11 +20,12 @@
               <div class="imgCtn">
                 <img class="unhover" src="@/assets/image/head.png" />
                 <img class="hover" src="@/assets/image/heads.png" />
+                <i style="vertical-align:middle;line-height:44px;color:#ABDAFF" class="el-icon-arrow-down"></i>
               </div>
-              <i style="vertical-align:middle;line-height:44px;color:#ABDAFF" class="el-icon-arrow-down"></i>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item v-if="!role" style="text-align:center" command='fallback'>一键还原</el-dropdown-item>
-                <el-dropdown-item style="text-align:center" command='logout'>注销</el-dropdown-item>
+                <el-dropdown-item disabled>{{name}}</el-dropdown-item>
+                <el-dropdown-item command='logout' divided>退出</el-dropdown-item>
+                <el-dropdown-item v-if="!role" command='fallback'>一键还原</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
@@ -47,20 +48,23 @@
           @drop="drop"
           @dragover="dragover">
           <!-- 文件夹名称，上级出发修改，span标签变成input标签 -->
-          <div class="marks" @dblclick="model.fileTitleEditFlag=true">
+          <div class="marks">
             <!-- desktopEditFlag控制未命名文件夹在桌面编辑/未编辑状态 -->
             <!-- fileTitleEditFlag控制文件夹编辑/未编辑状态 -->
             <span v-if="!desktopEditFlag" v-show="!model.fileTitleEditFlag">{{model.title === ('未命名'+ (modelIndex+1)) ?'':model.title}}</span>
             <span v-if="desktopEditFlag" v-show="!model.fileTitleEditFlag">{{model.title}}</span>
             <input v-show="model.fileTitleEditFlag" v-model="model.title" @blur="saveFileTitle(modelKey,modelIndex)"/>
             <!-- 在css中控制显示状态 -->
-            <img src="@/assets/image/icon_edit_blue.png" />
+            <img @click="model.fileTitleEditFlag=true" src="@/assets/image/icon_edit_blue.png" />
           </div>
           <!-- 磁贴区域 -->
           <div @click="openMetroUrl(item.applicationurl,item.applicationenable)" v-for="item in model.data" :id="item.pictureid" :key="item.pictureid" :class="item.picturesize + ' ' + item.picturetype + ' ' + item.bgcolor" :style="{'background':item.applicationenable===0?'#8b8f92!important':''}"  class="metro" :draggable="desktopEditFlag" @dragstart="dragstart">
             <!-- 取消添加，需要单独调用接口 -->
             <i class="cancle" @click.stop="cancleModel(item.pictureid)"><span>×</span></i>
-            <span class="title">{{item.applicationtitle}}</span>
+            <el-tooltip v-if="item.picturesize==='sizes'?item.applicationtitle.length>6:item.applicationtitle.length>15" effect="dark" :content="item.applicationtitle" placement="top">
+              <span class="title">{{item.applicationtitle}}</span>
+            </el-tooltip>
+            <span class="title" v-else>{{item.applicationtitle}}</span>
             <!-- 判断四种类型 -->
               <!-- 图标类型 -->
             <div v-if="item.picturetype === 'style-icon'" class="img" :style="{backgroundImage:'url(data:image/png;base64,' + item.picturecontent + ')'}"></div>
@@ -157,6 +161,7 @@ export default {
       oldFatherId: '', // 存储元素被拖拽时的初始father容器
       fileTitleEditFlag: false,
       loaded: false, // 数据加载完毕
+      name: '',
       role: null, // 角色信息
       // 数字滚动配置项
       ICountUp: {
@@ -287,7 +292,8 @@ export default {
           fileTitleEditFlag: false,
           data: []
         }
-      }
+      },
+      setInterval: ''
     }
   },
   methods: {
@@ -499,11 +505,11 @@ export default {
           }
           _this.desktopData = data
           this.loaded = true
-          _this.ergodic()
+          _this.asyncTimingTack()
         }
       }
     },
-    // 退出登录
+    // 用户操作--桌面还原、用户退出
     userOprate (cmd) {
       let _this = this
       if (cmd === 'fallback') {
@@ -517,7 +523,8 @@ export default {
             _this.initdesktopData()
           }
         })
-      } else {
+      }
+      if (cmd === 'logout') {
         logout().then((res) => {
           if (res.data.code === 1) {
             Message({
@@ -529,6 +536,21 @@ export default {
           }
         })
       }
+    },
+    // 异步定时任务
+    asyncTimingTack () {
+      let _this = this
+      if (_this.setInterval !== '') {
+        // 清空旧计数器
+        clearInterval(_this.setInterval)
+        _this.setInterval = ''
+      }
+      // 第一次获取数据
+      _this.ergodic()
+      // 每隔60s定时更新数据
+      _this.setInterval = setInterval(function () {
+        _this.ergodic()
+      }, 60000)
     },
     // 遍历异步磁贴
     ergodic () {
@@ -561,10 +583,15 @@ export default {
     let _this = this
     userRole().then((res) => {
       if (res.data.code === 1) {
+        _this.name = res.data.data.name
         _this.role = res.data.data.role
       }
     })
     this.initdesktopData()
+  },
+  beforeDestroy () {
+    clearInterval(this.setInterval)
+    this.setInterval = ''
   }
 }
 </script>

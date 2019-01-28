@@ -8,10 +8,11 @@
               <div class="imgCtn">
                 <img class="unhover" src="@/assets/image/head.png" />
                 <img class="hover" src="@/assets/image/heads.png" />
+                <i style="vertical-align:middle;line-height:44px;color:#ABDAFF" class="el-icon-arrow-down"></i>
               </div>
-              <i style="vertical-align:middle;line-height:44px;color:#ABDAFF" class="el-icon-arrow-down"></i>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item commond='logout'>注销</el-dropdown-item>
+                <el-dropdown-item disabled>{{name}}</el-dropdown-item>
+                <el-dropdown-item commond='logout' divided>退出</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
@@ -21,7 +22,7 @@
       <div class="titleCtn">
         <div class="leftCtn">
           <span class="h1">贴片清单</span>
-          <div v-if="role" class="button" @click="createFlag=true">
+          <div v-if="role" class="button" @click="showWindowFlag=true">
             <i class="icon">+</i>
             <span>新建贴片</span>
           </div>
@@ -102,8 +103,10 @@
           <el-table-column
             prop="status"
             label="是否启用"
-            width="90"
-            align="center">
+            width="120"
+            align="center"
+            :filters="[{text: '启用', value: true},{text: '停用', value: false}]"
+            :filter-method="filterHandler">>
             <template slot="header" slot-scope="scope">
               <span class="headTitle" :key="scope.applicationenable">是否启用</span>
             </template>
@@ -113,7 +116,7 @@
           </el-table-column>
           <el-table-column
             label="操作"
-            width="280"
+            width="250"
             align="center">
             <template slot="header" slot-scope="scope">
               <span class="headTitle" :key="scope.name">操作</span>
@@ -121,9 +124,9 @@
             <template slot-scope="scope">
               <!-- 操作分已添加，待添加，已删除状态 -->
               <!-- 编辑操作已添加和待添加状态，管理员可以使用 -->
-              <span v-if="role&&types!=='已删除'" :name="scope.row.name" class="opration opration1" @click="editModel(scope.row)">编辑</span>
+              <span v-if="role&&types!=='已删除'" class="opration opration1" @click="editModel(scope.row)">编辑</span>
               <!-- 添加操作只有待添加状态有 -->
-              <span v-if="types==='待添加'" :name="scope.row.name" class="opration" :class="{'opration2':role}">
+              <span v-if="types==='待添加'" class="opration" :class="{'opration2':role}">
                 <el-dropdown trigger="click" @command="handleCommand">
                   <span class="el-dropdown-link">
                     添加
@@ -134,30 +137,34 @@
                 </el-dropdown>
               </span>
               <!-- 删除操作只有待添加状态有 -->
-              <span v-if="types==='待添加'" :name="scope.row.name" class="opration opration3" @click="deleteModel(scope.row.pictureid)">删除</span>
+              <span v-if="types==='待添加'" class="opration opration3" @click="deleteModel(scope.row.pictureid)">删除</span>
               <!-- 取消添加只有已添加状态有 -->
-              <span v-if="types==='已添加'"  :name="scope.row.applicationtitle" class="opration" :class="{'opration4':role}" @click="cancelModel(scope.row.pictureid,0)">取消添加</span>
+              <span v-if="types==='已添加'" class="opration" :class="{'opration4':role}" @click="cancelModel(scope.row.pictureid,0)">取消添加</span>
               <!-- 取消删除和彻底删除只有已删除状态有 -->
-              <span v-if="types==='已删除'" :name="scope.row.applicationtitle" class="opration opration5" @click="cancelModel(scope.row.pictureid,1)">取消删除</span>
-              <span v-if="role&&types==='已删除'" :name="scope.row.applicationtitle" class="opration opration6" @click="removeModel(scope.row.pictureid)">彻底删除</span>
+              <span v-if="types==='已删除'" class="opration opration5" @click="cancelModel(scope.row.pictureid,1)">取消删除</span>
+              <span v-if="role&&types==='已删除'" class="opration opration6" @click="removeModel(scope.row.pictureid)">彻底删除</span>
             </template>
           </el-table-column>
+          <template slot="empty">
+            <div class="nodataImage" v-if="showWhichList.filter(data => !search || data.applicationtitle.toLowerCase().includes(search.toLowerCase())).length===0"></div>
+            <span class="nodataText">清单为空</span>
+          </template>
         </el-table>
       </div>
     </div>
     <div class="footer">
       <div class="line1">
-        <!-- <span>帮助</span>
+        <span>帮助</span>
         <span>隐私</span>
-        <span>条款</span> -->
+        <span>条款</span>
       </div>
       <div class="line2">copyright©2018 银江股份</div>
     </div>
-    <div class="window" v-show="createFlag">
+    <div class="window" v-show="showWindowFlag">
       <div class="main">
         <div class="head">
           <span>{{stepTitle}}</span>
-          <span @click="initWindow">X</span>
+          <span @click="initWindow()">X</span>
         </div>
         <div class="contentCtn">
           <div class="wContent" :class="{'wContentL':step>1,'wContentM':step===1,'wContentR':step<1}">
@@ -167,19 +174,19 @@
                 <span>类型：</span>
               </div>
               <div class="selcet" :class="{'active':newPatch.picturetype === 'style-icon'}">
-                <i class="circle"></i>
+                <i class="circle" @click="newPatch.picturetype='style-icon'"></i>
                 <span @click="newPatch.picturetype='style-icon'">图标</span>
               </div>
               <div class="selcet" :class="{'active':newPatch.picturetype === 'style-num'}">
-                <i class="circle"></i>
+                <i class="circle" @click="newPatch.picturetype='style-num'"></i>
                 <span @click="newPatch.picturetype='style-num'">数字</span>
               </div>
               <div class="selcet" :class="{'active':newPatch.picturetype === 'style-list'}">
-                <i class="circle"></i>
+                <i class="circle" @click="newPatch.picturetype='style-list'"></i>
                 <span @click="newPatch.picturetype='style-list'">数字列表</span>
               </div>
               <div class="selcet" :class="{'active':newPatch.picturetype === 'style-text'}">
-                <i class="circle"></i>
+                <i class="circle" @click="newPatch.picturetype='style-text'"></i>
                 <span @click="newPatch.picturetype='style-text'">文字列表</span>
               </div>
             </div>
@@ -233,34 +240,32 @@
               </div>
             </div>
           </div>
-          <el-form :model="newPatch" ref="newPatch" label-width="100px"  class="wContent form" :class="{'wContentL':step>2,'wContentM':step===2,'wContentR':step<2}">
-            <el-form-item label="系统名称：" prop="applicationtitle" :rules="[{ required: true, message: '系统名称不能为空'}, { validator: checkTitle, trigger: 'blur' }]">
+          <el-form :model="newPatch" ref="newPatch1" label-width="100px"  class="wContent form" :class="{'wContentL':step>2,'wContentM':step===2,'wContentR':step<2}">
+            <el-form-item label="系统名称：" prop="applicationtitle" :rules="[{ required: true, message: '系统名称不能为空'},
+            { max: 14, message: '长度请控制在 14 个字符以内', trigger: ['blur', 'change'] }, { validator: checkTitle, trigger: 'blur' }]">
               <el-input placeholder="请输入系统名称(必填项)" v-model="newPatch.applicationtitle"></el-input>
             </el-form-item>
             <el-form-item label="系统地址：" prop="applicationurl" :rules="[{ required: true, message: '系统地址不能为空'}, { type: 'url', message: '系统地址格式不正确', trigger: ['blur', 'change'] }]">
-              <el-input placeholder="请输入系统地址(必填项)" v-model="newPatch.applicationurl">
-              <el-button slot="append" @click="openUrl(newPatch.applicationurl)">测试</el-button>
-              </el-input>
+              <el-input style="width:80%;margin-right:15px;" placeholder="请输入系统地址(必填项)" v-model="newPatch.applicationurl"></el-input>
+              <el-button type="primary" @click="openUrl(newPatch.applicationurl)">测试跳转</el-button>
             </el-form-item>
-            <el-form-item label="系统简介：">
+            <el-form-item label="系统简介：" prop="applicationdescribe" :rules="[{ max: 24, message: '长度请控制在 24 个字符以内', trigger: ['blur', 'change'] }]">
               <el-input placeholder="请输入对于系统的介绍说明" v-model="newPatch.applicationdescribe"></el-input>
             </el-form-item>
             <el-form-item label="是否启用：">
                <el-switch v-model="newPatch.enable" active-color="#0078D7" inactive-color="#EEEEEE"></el-switch>
             </el-form-item>
-            <el-form-item label="API地址：" prop="apiurl" :rules="[{ required: true, message: 'API地址不能为空'}, { type: 'url', message: 'API地址格式不正确', trigger: ['blur', 'change'] }]" v-if="newPatch.picturetype!=='style-icon'">
-              <el-input placeholder="填写内容接口(必填项)" v-model="newPatch.apiurl">
-              <el-button slot="append" @click="openUrl(newPatch.apiurl)">测试</el-button>
-              </el-input>
+            <el-form-item label="API地址：" prop="apiurl" :rules="[{ required: true, message: 'API地址不能为空'}, { type: 'url', message: 'API地址格式不正确', trigger: ['blur', 'change'] },{ validator: checkAPI, trigger: 'blur' }]" v-if="newPatch.picturetype!=='style-icon'">
+              <el-input placeholder="填写内容接口(必填项)" v-model="newPatch.apiurl"></el-input>
             </el-form-item>
           </el-form>
-          <el-form :model="newPatch" ref="newPatch" label-width="100px"  class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-num'">
+          <el-form :model="newPatch" ref="newPatch2" label-width="100px"  class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-num'">
             <div class="explanation">
                <div class="explanation-title">填写说明：</div>
                <div class="explanation-content bg-num" v-if="newPatch.showExplanation"></div>
                <div class="explanation-fold" @click="newPatch.showExplanation=!newPatch.showExplanation">{{newPatch.showExplanation?'收起 ∧':'展开 ∨'}}</div>
             </div>
-            <el-form-item label="内容标题：" prop="contentdata[0].title" :rules="[{ required: true, message: '内容标题不能为空'}]">
+            <el-form-item label="内容标题：" prop="contentdata[0].title" :rules="[{ required: true, message: '内容标题不能为空'},{ max: 8, message: '长度请控制在 8 个字符以内', trigger: ['blur', 'change'] }]">
               <el-input placeholder="填写字段名称" v-model="newPatch.contentdata[0].title" ></el-input>
             </el-form-item>
             <el-form-item label="内容字段：" prop="contentdata[0].filedkey" :rules="[{ required: true, message: '内容字段不能为空'}]">
@@ -269,7 +274,7 @@
               </el-select>
             </el-form-item>
           </el-form>
-          <el-form :model="newPatch" ref="newPatch" label-width="100px"  class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-text'">
+          <el-form :model="newPatch" ref="newPatch3" label-width="100px"  class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-text'">
             <div class="explanation">
                <div class="explanation-title">填写说明：</div>
                <div class="explanation-content bg-text" v-if="newPatch.showExplanation"></div>
@@ -282,14 +287,14 @@
                 <el-input v-model="newPatch.contentdata[0].filedkey" disabled/>
             </el-form-item>
           </el-form>
-          <el-form :model="newPatch" ref="newPatch" label-width="100px" :inline="true" class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-list'">
+          <el-form :model="newPatch" ref="newPatch4" label-width="100px" :inline="true" class="wContent form" :class="{'wContentL':step>3,'wContentM':step===3,'wContentR':step<3}" v-if="newPatch.picturetype==='style-list'">
             <div class="explanation">
                <div class="explanation-title">填写说明：</div>
                <div class="explanation-content bg-list" v-if="newPatch.showExplanation"></div>
                <div class="explanation-fold" @click="newPatch.showExplanation=!newPatch.showExplanation">{{newPatch.showExplanation?'收起':'展开'}}</div>
             </div>
             <div style="width:100%;" v-for="(item,index) in newPatch.contentdata" :key="`title${index}`">
-            <el-form-item label="内容标题：" :prop="`contentdata[${index}].title`" :rules="[{ required: true, message: '内容标题不能为空'}]">
+            <el-form-item label="内容标题：" :prop="`contentdata[${index}].title`" :rules="[{ required: true, message: '内容标题不能为空'},{ max: 8, message: '长度请控制在 8 个字符以内', trigger: ['blur', 'change'] }]">
               <el-input placeholder="填写字段名称" v-model="item.title"></el-input>
             </el-form-item>
             <el-form-item label="内容字段：" :prop="`contentdata[${index}].filedkey`" :rules="[{ required: true, message: '内容字段不能为空'}]">
@@ -350,13 +355,13 @@
                 <div class="selfRight">
                   <span>图标预览：</span>
                   <div class="imgCtn">
-                    <img :src="newPatch.selfPhoto" />
+                    <img :src="imgFilter(newPatch.selfPhoto)" />
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <el-form :model="newPatch" ref="newPatch" label-width="100px"  class="wContent form" :class="{'wContentL':step>4,'wContentM':step===4,'wContentR':step<4}">
+          <el-form :model="newPatch" ref="newPatch5" label-width="100px"  class="wContent form" :class="{'wContentL':step>4,'wContentM':step===4,'wContentR':step<4}">
             <el-form-item label="可见角色：" prop="roles" :rules="[{ required: true, message: '可见角色不能为空'}]">
               <el-select v-model="newPatch.roles" multiple placeholder="请选择">
                 <el-option v-for="item in roleList" :key="item.roleid" :label="item.rolename" :value="item.roleid"></el-option>
@@ -366,7 +371,7 @@
         </div>
         <div class="opration">
           <div class="button button1" @click="next">{{step===4?editFlag?'确认':'完成':'下一步'}}</div>
-          <div class="button button2" @click="initWindow">取消</div>
+          <div class="button button2" @click="initWindow()">取消</div>
           <div class="button button3" v-show="editFlag?step!==2:step!==1" @click="step--">上一步</div>
         </div>
       </div>
@@ -376,6 +381,7 @@
 <script>
 import { patchList, deletePatch, cancelPatch, addPatch, removePatch, roleAndIcon, createPatch, editPatch, logout, userRole, validationTitle, validationApiInfo } from '@/api/api.js'
 import { Message } from 'element-ui'
+import defPhoto from '@/assets/image/defPhoto.js'
 export default {
   data () {
     return {
@@ -383,18 +389,18 @@ export default {
       showWhich: '图标库', // 编辑/新建状态下选择显示自定义/图标库
       step: 1, // 添加贴片的步骤
       fileList: [],
-      createFlag: false, // 是否展示编辑/新增贴片
-      editFlag: false, // 是否编辑贴片
+      showWindowFlag: false, // 是否展示新增/编辑弹窗
+      editFlag: false, // 是否为编辑贴片状态
       modelArr: [], // 六个模块
       toAddList: [], // 待添加
       addedList: [], // 已添加
       deletedList: [], // 已删除
       iconList: [], // 图标库
       roleList: [], // 角色库
+      name: '',
       role: false,
-      realUrl: true, // 判断输入的网址是否为真
       realTitle: true, // 判断输入标题是否正确
-      realApi: true, // 判断输入Api地址是否正确
+      realAPI: true, // 判断输入Api地址是否正确
       search: '', // 搜索
       newPatch: {
         photo: '', // 保存base64
@@ -406,8 +412,7 @@ export default {
         applicationurl: '',
         applicationdescribe: '',
         roles: [],
-        selfPhoto: require('@/assets/image/defPhoto.png'),
-        selfBase64: '',
+        selfPhoto: defPhoto,
         pictureid: '',
         apiurl: '',
         showExplanation: true,
@@ -520,30 +525,7 @@ export default {
     },
     // 显示图片filter
     imgFilter (val) {
-      return window.URL.createObjectURL(this.base64ToBlob('data:image/png;base64,' + val, 'image/png'))
-    },
-    // 转base64
-    getBase64Image (img) {
-      var canvas = document.createElement('canvas')
-      canvas.width = img.width
-      canvas.height = img.height
-      var ctx = canvas.getContext('2d')
-      ctx.drawImage(img, 0, 0, img.width, img.height)
-      var ext = img.src.substring(img.src.lastIndexOf('.') + 1).toLowerCase()
-      var dataURL = canvas.toDataURL('image/' + ext)
-      return dataURL
-    },
-    // 图片上传大小格式限制
-    beforeAvatarUpload (file) {
-      const isJPG = file.type === 'image/jpeg'
-      const isLt2M = file.size / 1024 / 1024 < 2
-      if (!isJPG) {
-        this.$message.error('上传图片只能是 JPG 格式!')
-      }
-      if (!isLt2M) {
-        this.$message.error('上传图片大小不能超过 2MB!')
-      }
-      return isJPG && isLt2M
+      return 'data:image/png;base64,' + val
     },
     // 文件上传
     fileChange (file, fileList) {
@@ -557,11 +539,10 @@ export default {
       }
       if (isJPG && isLt2M) {
         let _this = this
-        this.newPatch.selfPhoto = URL.createObjectURL(file.raw)
         let reader = new FileReader()
         reader.onload = () => {
           let _base64 = reader.result
-          _this.newPatch.selfBase64 = _base64
+          _this.newPatch.selfPhoto = _base64.split(',')[1]
         }
         reader.readAsDataURL(file.raw)
       }
@@ -649,96 +630,90 @@ export default {
       }
       // 第二步验证必填项是否为空
       if (this.step === 2) {
-        if (newPatch.applicationtitle === '' || this.realTitle === false) {
-          this.realTitle = false
-          return ''
-        }
-        if (newPatch.applicationurl === '' || this.realUrl === false) {
-          this.realUrl = false
-          return ''
-        }
-        if (newPatch.picturetype !== 'style-icon') {
-          if (newPatch.apiurl === '' || this.realApi === false) {
-            this.realApi = false
-            return ''
-          }
-          let res = await validationApiInfo({ apiurl: newPatch.apiurl })
-          if (res.data.code === 1) {
-            if (newPatch.picturetype === 'style-num' || newPatch.picturetype === 'style-list') {
-              this.apiContent = res.data.data
+        this.$refs['newPatch1'].validate((valid) => {
+          if (valid) {
+            if (this.realTitle === false) {
+              return ''
             }
-            if (newPatch.picturetype === 'style-text') {
-              newPatch.contentdata[0].title = 'time'
-              newPatch.contentdata[0].filedkey = 'content'
+            if (newPatch.picturetype !== 'style-icon' && this.realAPI === false) {
+              return ''
             }
-          } else {
-            Message({
-              type: 'error',
-              message: res.data.message,
-              duration: 2000
-            })
-            return ''
+            this.step++
           }
-        }
-        this.step++
+        })
         return ''
       }
       // 第三步
       if (this.step === 3) {
-        this.step++
+        if (newPatch.picturetype === 'style-icon' || newPatch.picturetype === 'style-text') {
+          this.step++
+        }
+        if (newPatch.picturetype === 'style-num') {
+          this.$refs['newPatch2'].validate((valid) => {
+            if (valid) {
+              this.step++
+            }
+          })
+        }
+        if (newPatch.picturetype === 'style-list') {
+          this.$refs['newPatch4'].validate((valid) => {
+            if (valid) {
+              this.step++
+            }
+          })
+        }
         return ''
       }
       // 第四步
       if (this.step === 4) {
-        // 提交之前先验证必填项是否为空
-        if (newPatch.roles.length === 0) {
-          Message({
-            type: 'error',
-            message: '请选择可见角色',
-            duration: 2000
-          })
-          return ''
-        }
-        // 先处理部分数据
-        newPatch.enable = newPatch.enable === true ? 1 : 0
-        // 判定最后选了哪个图
-        let img = this.showWhich === '图标库' ? newPatch.photo : newPatch.selfBase64 === '' ? newPatch.photo : newPatch.selfBase64.split(',')[1]
-        let editParams = {
-          photo: img,
-          picturetype: newPatch.picturetype,
-          pictureid: newPatch.pictureid,
-          enable: newPatch.enable,
-          applicationtitle: newPatch.applicationtitle,
-          applicationurl: newPatch.applicationurl,
-          applicationdescribe: newPatch.applicationdescribe,
-          roles: newPatch.roles,
-          refreshflag: 1,
-          apiurl: newPatch.apiurl,
-          contentdata: newPatch.contentdata
-        }
-        let createParams = {
-          photo: img,
-          picturetype: newPatch.picturetype,
-          picturesize: newPatch.picturesize,
-          bgcolor: newPatch.bgcolor,
-          enable: newPatch.enable,
-          applicationtitle: newPatch.applicationtitle,
-          applicationurl: newPatch.applicationurl,
-          applicationdescribe: newPatch.applicationdescribe,
-          roles: newPatch.roles,
-          refreshflag: 1,
-          apiurl: newPatch.apiurl,
-          contentdata: newPatch.contentdata
-        }
-        let res = this.editFlag ? await editPatch(editParams) : await createPatch(createParams)
-        Message({
-          type: res.data.code === 1 ? 'success' : 'error',
-          message: res.data.message,
-          duration: 2000
+        this.$refs['newPatch5'].validate((valid) => {
+          if (valid) {
+            this.uploadPatchData(newPatch)
+          }
         })
-        this.initData()
-        this.initWindow()
       }
+    },
+    // 上传新增/编辑磁贴的数据
+    async uploadPatchData (newPatch) {
+      // 先处理部分数据
+      newPatch.enable = newPatch.enable === true ? 1 : 0
+      // 判定最后选了哪个图
+      let img = this.showWhich === '图标库' ? newPatch.photo : newPatch.selfPhoto === defPhoto ? newPatch.photo : newPatch.selfPhoto
+      let editParams = {
+        photo: img,
+        picturetype: newPatch.picturetype,
+        pictureid: newPatch.pictureid,
+        enable: newPatch.enable,
+        applicationtitle: newPatch.applicationtitle,
+        applicationurl: newPatch.applicationurl,
+        applicationdescribe: newPatch.applicationdescribe,
+        roles: newPatch.roles,
+        refreshflag: 1,
+        apiurl: newPatch.apiurl,
+        contentdata: newPatch.contentdata
+      }
+      let createParams = {
+        photo: img,
+        picturetype: newPatch.picturetype,
+        picturesize: newPatch.picturesize,
+        bgcolor: newPatch.bgcolor,
+        enable: newPatch.enable,
+        applicationtitle: newPatch.applicationtitle,
+        applicationurl: newPatch.applicationurl,
+        applicationdescribe: newPatch.applicationdescribe,
+        roles: newPatch.roles,
+        refreshflag: 1,
+        apiurl: newPatch.apiurl,
+        contentdata: newPatch.contentdata
+      }
+      let res = this.editFlag ? await editPatch(editParams) : await createPatch(createParams)
+      Message({
+        type: res.data.code === 1 ? 'success' : 'error',
+        message: res.data.message,
+        duration: 2000
+      })
+      this.initData()
+      this.initWindow()
     },
     // 点击取消或者右上角的关闭按钮需要初始化窗口信息
     initWindow () {
@@ -753,8 +728,7 @@ export default {
         applicationurl: '',
         applicationdescribe: '',
         roles: [],
-        selfPhoto: require('@/assets/image/defPhoto.png'),
-        selfBase64: '',
+        selfPhoto: defPhoto,
         pictureid: '',
         apiurl: '',
         showExplanation: true,
@@ -764,26 +738,34 @@ export default {
         ]
       }
       this.showWhich = '图标库'
-      this.createFlag = false
+      this.showWindowFlag = false
       this.editFlag = false
       this.step = 1
-      this.realUrl = true
       this.realTitle = true
-      this.realApi = true
+      this.realAPI = true
       this.apiContent = []
-    },
-    // 选择贴片样式时的提示信息
-    showTips () {
-      Message({
-        type: 'error',
-        message: '该贴片样式暂不可用',
-        duration: 2000
-      })
+      this.$refs['newPatch1'].resetFields()
+      this.$refs['newPatch2'].resetFields()
+      this.$refs['newPatch3'].resetFields()
+      this.$refs['newPatch4'].resetFields()
+      this.$refs['newPatch5'].resetFields()
     },
     // 编辑贴片
     editModel (info) {
       if (info.picturetype === 'style-icon') {
-        this.newPatch.photo = info.picturecontent
+        let flag = false
+        this.iconList.map((item) => {
+          if (item.content === info.picturecontent) {
+            flag = true
+          }
+        })
+        if (flag) {
+          this.newPatch.photo = info.picturecontent
+          this.showWhich = '图标库'
+        } else {
+          this.newPatch.selfPhoto = info.picturecontent
+          this.showWhich = '自定义图标'
+        }
       }
       if (info.picturetype === 'style-list' || info.picturetype === 'style-num') {
         this.newPatch.apiurl = info.picturecontent.apiurl
@@ -803,11 +785,12 @@ export default {
       })
       this.step = 2
       this.editFlag = true
-      this.createFlag = true
+      this.showWindowFlag = true
     },
     // 用户操作
-    userOprate () {
-      logout().then((res) => {
+    async userOprate (cmd) {
+      if (cmd === 'logout') {
+        let res = await logout()
         if (res.data.code === 1) {
           Message({
             type: 'success',
@@ -816,7 +799,7 @@ export default {
           })
           location.href = res.data.data
         }
-      })
+      }
     },
     // 打开链接
     openUrl (url) {
@@ -831,7 +814,23 @@ export default {
       })
       this.realTitle = res.data.code === 1
       res.data.code === 1 ? callback() : callback(new Error('系统名称不能重名'))
+    },
+    // 检查API是否符合规定
+    async checkAPI (rule, value, callback) {
+      let res = await validationApiInfo({ apiurl: this.newPatch.apiurl, type: this.newPatch.picturetype === 'style-text' ? 'text' : 'list' })
+      this.realAPI = res.data.code === 1
+      res.data.code === 1 ? callback() : callback(new Error(res.data.message))
+      if (res.data.code === 1) {
+        if (this.newPatch.picturetype === 'style-num' || this.newPatch.picturetype === 'style-list') {
+          this.apiContent = res.data.data
+        }
+        if (this.newPatch.picturetype === 'style-text') {
+          this.newPatch.contentdata[0].title = 'time'
+          this.newPatch.contentdata[0].filedkey = 'content'
+        }
+      }
     }
+
   },
   async mounted () {
     // 初始化列表
@@ -845,45 +844,12 @@ export default {
     this.roleList = roleAndIconRes.data.data.role
     // 初始化用户角色
     let userRoleRes = await userRole()
+    this.name = userRoleRes.data.data.name
     this.role = userRoleRes.data.data.role
   }
 }
 </script>
 
-<style>
-.editCtn .el-table th, .el-table tr{
-  background: transparent;
-}
-.editCtn .el-table__footer-wrapper, .el-table__header-wrapper{
-  box-sizing: border-box;
-  background: #FAFAFA;
-  border:1px solid #E8E8E8;
-  border-bottom: 0;
-}
-.editCtn .el-table__column-filter-trigger i{
-  font-size: 16px;
-  font-weight: bold;
-  margin-left: 6px;
-}
- /* table:before有一条线层级较高，影响弹框显示，暂时不知道这条线的用途 */
-.editCtn .el-table::before{
-  height: 0;
-}
-.editCtn .el-select{
-  width: 80%;
-}
-
-.opration span{
-  font-size: 16px!important;
-}
-.opration .el-dropdown{
-  color: #63BAFF;
-}
-
-el-upload-list el-upload-list--text{
-  display: none;
-}
-</style>
 <style lang="less" scoped>
   @import '~@/assets/css/edit.less';
 </style>
