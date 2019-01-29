@@ -77,7 +77,7 @@
             width="120"
             align="center"
             :filters="[{text: '图标', value: 'style-icon'},{text: '数字', value: 'style-num'},{text: '文本信息', value: 'style-text'},{text: '数字列表', value: 'style-list'}]"
-            :filter-method="filterHandlerIcon">
+            :filter-method="filterHandler">
             <template slot="header" slot-scope="scope">
               <span class="headTitle" :key="scope.picturetype">全部类型</span>
             </template>
@@ -101,11 +101,11 @@
             </template>
           </el-table-column>
           <el-table-column
-            prop="status"
+            prop="applicationenable"
             label="是否启用"
             width="120"
             align="center"
-            :filters="[{text: '启用', value: true},{text: '停用', value: false}]"
+            :filters="[{text: '启用', value: 1},{text: '停用', value: 0}]"
             :filter-method="filterHandler">>
             <template slot="header" slot-scope="scope">
               <span class="headTitle" :key="scope.applicationenable">是否启用</span>
@@ -499,12 +499,9 @@ export default {
     // 筛选列表
     filterHandler (value, row, column) {
       const property = column['property']
+      console.log(value)
+      console.log(row[property])
       return row[property] === value
-    },
-    // 筛选图标需要特殊处理
-    filterHandlerIcon (value, row, column) {
-      const property = column['property']
-      return row[property].split('-')[1] === value
     },
     // 显示图片filter
     imgFilter (val) {
