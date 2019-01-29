@@ -87,6 +87,7 @@
                   <ICountUp :startVal="ICountUp.startVal" :endVal="item2.value" :decimals="ICountUp.decimals"
                    :duration="ICountUp.duration" :options="ICountUp.options"/>
                 </span>
+                <span v-if="item2.unit!==''">{{item2.unit}}</span>
               </div>
             </div>
             <!-- 文字列表-->
@@ -566,7 +567,7 @@ export default {
         this.asyncData[key]['contentdata'].map((item) => {
           res.data.data.map((item2) => {
             if (item.filedkey === item2.keyname) {
-              data.push({ name: item.title, value: item2.number, unit: item.unit })
+              data.push({ name: item.title, value: item2.number, unit: item2.unit })
             }
           })
         })

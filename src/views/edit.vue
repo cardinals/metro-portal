@@ -77,7 +77,7 @@
             width="120"
             align="center"
             :filters="[{text: '图标', value: 'style-icon'},{text: '数字', value: 'style-num'},{text: '文本信息', value: 'style-text'},{text: '数字列表', value: 'style-list'}]"
-            :filter-method="filterHandlerIcon">
+            :filter-method="filterHandler">
             <template slot="header" slot-scope="scope">
               <span class="headTitle" :key="scope.picturetype">全部类型</span>
             </template>
@@ -101,11 +101,11 @@
             </template>
           </el-table-column>
           <el-table-column
-            prop="status"
+            prop="applicationenable"
             label="是否启用"
             width="120"
             align="center"
-            :filters="[{text: '启用', value: true},{text: '停用', value: false}]"
+            :filters="[{text: '启用', value: 1},{text: '停用', value: 0}]"
             :filter-method="filterHandler">>
             <template slot="header" slot-scope="scope">
               <span class="headTitle" :key="scope.applicationenable">是否启用</span>
@@ -347,7 +347,7 @@
                       :file-list="fileList"
                       >
                       <el-button size="small" type="primary" icon="el-icon-picture">选择图片</el-button>
-                      <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过1Mb</div>
+                      <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过100KB</div>
                       <div slot="tip" class="el-upload__tip">最佳尺寸：150像素*150像素</div>
                     </el-upload>
                   </div>
@@ -499,12 +499,9 @@ export default {
     // 筛选列表
     filterHandler (value, row, column) {
       const property = column['property']
+      console.log(value)
+      console.log(row[property])
       return row[property] === value
-    },
-    // 筛选图标需要特殊处理
-    filterHandlerIcon (value, row, column) {
-      const property = column['property']
-      return row[property].split('-')[1] === value
     },
     // 显示图片filter
     imgFilter (val) {
@@ -513,14 +510,14 @@ export default {
     // 文件上传
     fileChange (file, fileList) {
       const isJPG = file.raw.type === 'image/jpeg' || file.raw.type === 'image/png'
-      const isLt1M = file.size / 1024 / 1024 < 1
+      const isLt100KB = file.size / 1024 < 100
       if (!isJPG) {
         this.$message.error('上传图片只能是 JPG/PNG 格式!')
       }
-      if (!isLt1M) {
-        this.$message.error('上传图片大小不能超过 1MB!')
+      if (!isLt100KB) {
+        this.$message.error('上传图片大小不能超过 100KB!')
       }
-      if (isJPG && isLt1M) {
+      if (isJPG && isLt100KB) {
         let _this = this
         let reader = new FileReader()
         reader.onload = () => {
