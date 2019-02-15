@@ -586,9 +586,15 @@ export default {
       if (res.data.code === 1) {
         _this.name = res.data.data.name
         _this.role = res.data.data.role
+        _this.initdesktopData()
+      } else {
+        Message({
+          type: 'warning',
+          message: res.data.message,
+          duration: 2000
+        })
       }
     })
-    this.initdesktopData()
   },
   beforeDestroy () {
     clearInterval(this.setInterval)
