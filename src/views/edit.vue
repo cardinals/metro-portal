@@ -12,7 +12,7 @@
               </div>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item disabled>{{name}}</el-dropdown-item>
-                <el-dropdown-item commond='logout' divided>退出</el-dropdown-item>
+                <el-dropdown-item command='logout' divided>退出</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
