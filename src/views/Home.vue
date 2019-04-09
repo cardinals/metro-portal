@@ -294,7 +294,9 @@ export default {
           data: []
         }
       },
-      setInterval: ''
+      setInterval: '',
+      // 电子政务平台token
+      seeyonToken: null
     }
   },
   methods: {
@@ -475,6 +477,8 @@ export default {
         this.$message.error('该模块暂未启用')
       } else {
         if (!this.desktopEditFlag) {
+          const reg = RegExp('/seeyon/login/sso')
+          url = url.match(reg) ? `${url}?from=shkkssologin&id_token=${this.seeyonToken}` : url
           window.open(url)
         }
       }
@@ -586,6 +590,7 @@ export default {
       if (res.data.code === 1) {
         _this.name = res.data.data.name
         _this.role = res.data.data.role
+        _this.seeyonToken = res.data.data.orgname
         _this.initdesktopData()
       } else {
         Message({

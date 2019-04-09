@@ -421,7 +421,8 @@ export default {
           { title: '', filedkey: '', filedsort: 1 }
         ]
       }, // 新增贴片信息
-      apiContent: ''
+      apiContent: '',
+      seeyonToken: null
     }
   },
   watch: {
@@ -783,6 +784,8 @@ export default {
     },
     // 打开链接
     openUrl (url) {
+      const reg = RegExp('/seeyon/login/sso')
+      url = url.match(reg) ? `${url}?from=shkkssologin&id_token=${this.seeyonToken}` : url
       window.open(url)
     },
     // 检查标题是否重名
@@ -826,6 +829,7 @@ export default {
     let userRoleRes = await userRole()
     this.name = userRoleRes.data.data.name
     this.role = userRoleRes.data.data.role
+    this.seeyonToken = userRoleRes.data.data.orgname
   }
 }
 </script>
