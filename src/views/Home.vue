@@ -387,7 +387,7 @@ export default {
       }
     },
     // 删除模块
-    cancleModel (id) {
+    async cancleModel (id) {
       for (let item in this.desktopData) {
         this.desktopData[item].data.forEach((item2, index) => {
           if (item2.pictureid === id) {
@@ -395,21 +395,13 @@ export default {
           }
         })
       }
-      cancelPatch({
-        pictureid: id,
-        status: 0
-      }).then((res) => {
-        if (res.data.code === 1) {
-          Message({
-            type: 'success',
-            message: '删除图标成功',
-            duration: 2000
-          })
-        }
-      })
+      const res = await cancelPatch({ pictureid: id, status: 0 })
+      if (res.data.code === 1) {
+        this.showMessage('success', '删除图标成功')
+      }
     },
     // 保存桌面
-    saveDesktop () {
+    async saveDesktop () {
       this.desktopEditFlag = !this.desktopEditFlag
       // 处理数据，添加顺序字段
       if (!this.desktopEditFlag) {
@@ -422,25 +414,23 @@ export default {
             item2.modulesort = index + 1
           })
         }
-        savePatch(desktopData).then((res) => {
-          if (res.data.code === 1) {
-            Message({
-              type: 'success',
-              message: '保存桌面成功',
-              duration: 2000
-            })
-          }
+        const loading = this.$loading({
+          lock: true,
+          text: '稍等片刻',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
         })
+        const res = await savePatch(desktopData)
+        loading.close()
+        if (res.data.code === 1) {
+          this.showMessage('success', '保存桌面成功')
+        }
       }
     },
     // 保存标题
     saveFileTitle (model, index) {
       if (this.desktopData[model].title.length > 8) {
-        Message({
-          type: 'error',
-          message: '标题不能超过八个字',
-          duration: 2000
-        })
+        this.showMessage('error', '标题不能超过八个字')
         this.desktopData[model].title = '请重新命名'
       } else {
         this.desktopData[model].fileTitleEditFlag = false
@@ -474,7 +464,7 @@ export default {
     // 打开磁贴对应链接
     openMetroUrl (url, applicationenable) {
       if (applicationenable === 0) {
-        this.$message.error('该模块暂未启用')
+        this.showMessage('error', '该模块暂未启用')
       } else {
         if (!this.desktopEditFlag) {
           const reg = RegExp('/seeyon/login/sso')
@@ -488,11 +478,7 @@ export default {
       let _this = this
       let initRes = await initAdd()
       if (initRes.data.code !== 1) {
-        Message({
-          type: 'error',
-          message: initRes.data.message,
-          duration: 2000
-        })
+        _this.showMessage('error', initRes.data.message)
         return ''
       }
       if (initRes.data.code === 1) {
@@ -515,31 +501,21 @@ export default {
       }
     },
     // 用户操作--桌面还原、用户退出
-    userOprate (cmd) {
+    async userOprate (cmd) {
       let _this = this
       if (cmd === 'fallback') {
-        fallback().then((res) => {
-          if (res.data.code === 1) {
-            Message({
-              type: 'success',
-              message: '还原成功',
-              duration: 2000
-            })
-            _this.initdesktopData()
-          }
-        })
+        const res = fallback()
+        if (res.data.code === 1) {
+          _this.showMessage('success', '还原成功')
+          _this.initdesktopData()
+        }
       }
       if (cmd === 'logout') {
-        logout().then((res) => {
-          if (res.data.code === 1) {
-            Message({
-              type: 'success',
-              message: '注销成功',
-              duration: 2000
-            })
-            location.href = res.data.data
-          }
-        })
+        const res = logout()
+        if (res.data.code === 1) {
+          _this.showMessage('success', '注销成功')
+          location.href = res.data.data
+        }
       }
     },
     // 异步定时任务
@@ -582,24 +558,30 @@ export default {
         })
       }
       this.$set(this.asyncData[key], 'data', data)
+    },
+    // 获取用户信息
+    async getUserRole () {
+      const res = await userRole()
+      if (res.data.code === 1) {
+        this.name = res.data.data.name
+        this.role = res.data.data.role
+        this.seeyonToken = res.data.data.orgname
+        this.initdesktopData()
+      } else {
+        this.showMessage('warning', res.data.message)
+      }
+    },
+    // 显示消息
+    showMessage (type, message, time) {
+      Message({
+        type: type || 'success',
+        message: message || '未定义的消息内容',
+        duration: time || 2000
+      })
     }
   },
   mounted () {
-    let _this = this
-    userRole().then((res) => {
-      if (res.data.code === 1) {
-        _this.name = res.data.data.name
-        _this.role = res.data.data.role
-        _this.seeyonToken = res.data.data.orgname
-        _this.initdesktopData()
-      } else {
-        Message({
-          type: 'warning',
-          message: res.data.message,
-          duration: 2000
-        })
-      }
-    })
+    this.getUserRole()
   },
   beforeDestroy () {
     clearInterval(this.setInterval)

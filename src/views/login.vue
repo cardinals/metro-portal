@@ -30,23 +30,24 @@ export default {
     }
   },
   methods: {
-    goLogin () {
-      let _this = this
-      login({
-        username: _this.username,
-        password: _this.password
-      }).then((res) => {
-        console.log(res)
-        if (res.data.code === 1) {
-          _this.$router.push('/home')
-        } else {
-          Message({
-            type: 'error',
-            message: '请检查用户名或密码是否正确',
-            duration: 2000
-          })
-        }
+    // 显示消息
+    showMessage (type, message, time) {
+      Message({
+        type: type || 'success',
+        message: message || '未定义的消息内容',
+        duration: time || 2000
       })
+    },
+    async goLogin () {
+      const res = await login({
+        username: this.username,
+        password: this.password
+      })
+      if (res.data.code === 1) {
+        this.$router.push('/home')
+      } else {
+        this.showMessage('error', '请检查用户名或密码是否正确')
+      }
     }
   }
 }

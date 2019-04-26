@@ -500,8 +500,6 @@ export default {
     // 筛选列表
     filterHandler (value, row, column) {
       const property = column['property']
-      console.log(value)
-      console.log(row[property])
       return row[property] === value
     },
     // 显示图片filter
@@ -574,11 +572,7 @@ export default {
     },
     // 新增/添加/取消添加/删除/彻底删除 回调函数(通知、刷新数据)
     callback (res) {
-      Message({
-        type: res.data.code === 1 ? 'success' : 'error',
-        message: res.data.message,
-        duration: 2000
-      })
+      this.showMessage(res.data.code === 1 ? 'success' : 'error', res.data.message)
       this.initData()
     },
     // 添加列表字段
@@ -656,6 +650,12 @@ export default {
     },
     // 上传新增/编辑磁贴的数据
     async uploadPatchData (newPatch) {
+      const loading = this.$loading({
+        lock: true,
+        text: '稍等片刻',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      })
       // 先处理部分数据
       newPatch.enable = newPatch.enable === true ? 1 : 0
       // 判定最后选了哪个图
@@ -688,11 +688,8 @@ export default {
         contentdata: newPatch.contentdata
       }
       let res = this.editFlag ? await editPatch(editParams) : await createPatch(createParams)
-      Message({
-        type: res.data.code === 1 ? 'success' : 'error',
-        message: res.data.message,
-        duration: 2000
-      })
+      this.showMessage(res.data.code === 1 ? 'success' : 'error', res.data.message)
+      loading.close()
       this.initData()
       this.initWindow()
     },
@@ -773,11 +770,7 @@ export default {
       if (cmd === 'logout') {
         let res = await logout()
         if (res.data.code === 1) {
-          Message({
-            type: 'success',
-            message: '注销成功',
-            duration: 2000
-          })
+          this.showMessage('success', '注销成功')
           location.href = res.data.data
         }
       }
@@ -812,24 +805,48 @@ export default {
           this.newPatch.contentdata[0].filedkey = 'content'
         }
       }
+    },
+    // 获取用户信息
+    async getUserRole () {
+      const res = await userRole()
+      if (res.data.code === 1) {
+        this.name = res.data.data.name
+        this.role = res.data.data.role
+        this.seeyonToken = res.data.data.orgname
+        this.initdesktopData()
+      } else {
+        this.showMessage('warning', res.data.message)
+      }
+    },
+    // 获取角色列表以及图标列表
+    async getRoleAndIcon () {
+      const res = await roleAndIcon()
+      if (res.data.code === 1) {
+        this.iconList = res.data.data.icon
+        // 初始化默认图
+        this.newPatch.photo = this.iconList[0].content
+        // 初始化权限角色列表
+        this.roleList = res.data.data.role
+      } else {
+        this.showMessage('warning', res.data.message)
+      }
+    },
+    // 显示消息
+    showMessage (type, message, time) {
+      Message({
+        type: type || 'success',
+        message: message || '未定义的消息内容',
+        duration: time || 2000
+      })
     }
-
   },
   async mounted () {
     // 初始化列表
     this.initData()
-    // 初始化图标库
-    let roleAndIconRes = await roleAndIcon()
-    this.iconList = roleAndIconRes.data.data.icon
-    // 初始化默认图
-    this.newPatch.photo = this.iconList[0].content
-    // 初始化权限角色列表
-    this.roleList = roleAndIconRes.data.data.role
+    // 初始化权限角色列表以及图标库
+    this.getRoleAndIcon()
     // 初始化用户角色
-    let userRoleRes = await userRole()
-    this.name = userRoleRes.data.data.name
-    this.role = userRoleRes.data.data.role
-    this.seeyonToken = userRoleRes.data.data.orgname
+    this.getUserRole()
   }
 }
 </script>
