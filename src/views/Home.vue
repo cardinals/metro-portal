@@ -467,8 +467,8 @@ export default {
         this.showMessage('error', '该模块暂未启用')
       } else {
         if (!this.desktopEditFlag) {
-          const reg = RegExp('/seeyon/login/sso')
-          url = url.match(reg) ? `${url}?from=shkkssologin&id_token=${this.seeyonToken}` : url
+          const reg = RegExp('/seeyon/shkkLinkController.do')
+          url = url.match(reg) ? `${url}?method=kksso&ticket=${this.seeyonToken}` : url
           window.open(url)
         }
       }

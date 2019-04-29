@@ -777,8 +777,8 @@ export default {
     },
     // 打开链接
     openUrl (url) {
-      const reg = RegExp('/seeyon/login/sso')
-      url = url.match(reg) ? `${url}?from=shkkssologin&id_token=${this.seeyonToken}` : url
+      const reg = RegExp('/seeyon/shkkLinkController.do')
+      url = url.match(reg) ? `${url}?method=kksso&ticket=${this.seeyonToken}` : url
       window.open(url)
     },
     // 检查标题是否重名
