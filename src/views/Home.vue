@@ -504,14 +504,14 @@ export default {
     async userOprate (cmd) {
       let _this = this
       if (cmd === 'fallback') {
-        const res = fallback()
+        const res = await fallback()
         if (res.data.code === 1) {
           _this.showMessage('success', '还原成功')
           _this.initdesktopData()
         }
       }
       if (cmd === 'logout') {
-        const res = logout()
+        const res = await logout()
         if (res.data.code === 1) {
           _this.showMessage('success', '注销成功')
           location.href = res.data.data
