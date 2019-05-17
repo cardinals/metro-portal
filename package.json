@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build-image": "vue-cli-service build  &&  docker build -t nginx-metro-portal-cas ./docker",
+    "build-image": "vue-cli-service build  &&  docker build -t nginx-metro-portal-cas-xuhui ./docker",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
