@@ -58,3 +58,15 @@
 .el-upload-list .el-upload-list--text{
   display: none;
 }
+
+.el-dialog__header{
+  background: linear-gradient(90deg,rgba(77,132,254,1) 0%,rgba(135,172,254,1) 100%);
+}
+
+.el-dialog__title{
+  color: #FEFEFE;
+}
+
+.el-dialog__footer{
+  border-top: 1px solid #EBEBEB;
+}
