@@ -141,15 +141,15 @@
         </div>
       </div>
       <el-dialog title="修改密码" :visible.sync="updatePasswordVisible" width="500px">
-        <el-form :model="password" status-icon ref="updatePassword" label-width="80px">
-          <el-form-item label="旧密码" prop="oldPass" :rules="[{ required: true, message: '请输入旧密码', trigger: 'blur' }]">
-            <el-input type="password" v-model="password.oldPass" autocomplete="off"></el-input>
+        <el-form :model="password" status-icon ref="updatePassword" label-width="96px">
+          <el-form-item label="原始密码" prop="oldPass" :rules="[{ required: true, message: '请输入原始密码', trigger: 'blur' }]">
+            <el-input type="password" v-model="password.oldPass" autocomplete="off" placeholder="请输入原始密码"></el-input>
           </el-form-item>
           <el-form-item label="新密码" prop="newPass" :rules="[{ required: true, message: '请输入新密码', trigger: 'blur' }]">
-            <el-input type="password" v-model="password.newPass" autocomplete="off"></el-input>
+            <el-input type="password" v-model="password.newPass" autocomplete="off" placeholder="请输入新密码"></el-input>
           </el-form-item>
-          <el-form-item label="确认密码" prop="confirmPass" :rules="[{ required: true, validator: confirmPass, trigger: 'blur' }]">
-            <el-input type="password" v-model="password.confirmPass" autocomplete="off"></el-input>
+          <el-form-item label="确认新密码" prop="confirmPass" :rules="[{ required: true, validator: confirmPass, trigger: 'blur' }]">
+            <el-input type="password" v-model="password.confirmPass" autocomplete="off" placeholder="请确认新密码"></el-input>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
