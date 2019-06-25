@@ -34,4 +34,6 @@ const fallback = () => http.get(`${baseUrl}/fallback`)
 const validationTitle = (params) => http.get(`${baseUrl}/validationTitle`, params)
 // 验证用户自定义API信息
 const validationApiInfo = (params) => http.get(`${baseUrl}/apiInfo`, params)
-export { patchList, deletePatch, cancelPatch, addPatch, removePatch, roleAndIcon, createPatch, editPatch, initAdd, layoutInfo, savePatch, login, logout, userRole, fallback, validationTitle, validationApiInfo }
+// 密码修改
+const updatePassword = (params) => http.post(`${baseUrl}/upDatePassword`, params, 'application/json')
+export { patchList, deletePatch, cancelPatch, addPatch, removePatch, roleAndIcon, createPatch, editPatch, initAdd, layoutInfo, savePatch, login, logout, userRole, fallback, validationTitle, validationApiInfo, updatePassword }

@@ -24,6 +24,7 @@
               </div>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item disabled>{{name}}</el-dropdown-item>
+                <el-dropdown-item command='updatepw' divided>修改密码</el-dropdown-item>
                 <el-dropdown-item command='logout' divided>退出</el-dropdown-item>
                 <el-dropdown-item v-if="!role" command='fallback'>一键还原</el-dropdown-item>
               </el-dropdown-menu>
@@ -139,20 +140,38 @@
           </div>
         </div>
       </div>
+      <el-dialog title="修改密码" :visible.sync="updatePasswordVisible" width="500px">
+        <el-form :model="password" status-icon ref="updatePassword" label-width="80px">
+          <el-form-item label="旧密码" prop="oldPass" :rules="[{ required: true, message: '请输入旧密码', trigger: 'blur' }]">
+            <el-input type="password" v-model="password.oldPass" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="新密码" prop="newPass" :rules="[{ required: true, message: '请输入新密码', trigger: 'blur' }]">
+            <el-input type="password" v-model="password.newPass" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="确认密码" prop="confirmPass" :rules="[{ required: true, validator: confirmPass, trigger: 'blur' }]">
+            <el-input type="password" v-model="password.confirmPass" autocomplete="off"></el-input>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="resetForm('updatePassword')">取 消</el-button>
+          <el-button type="primary" @click="checkform('updatePassword')">确 定</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
-import { initAdd, layoutInfo, savePatch, cancelPatch, logout, userRole, fallback } from '@/api/api.js'
-import { Message } from 'element-ui'
+import { initAdd, layoutInfo, savePatch, cancelPatch } from '@/api/api.js'
 import http from '@/plugins/axios.js'
 import ICountUp from 'vue-countup-v2'
+import Mixin from '@/components/mixin'
 export default {
   name: 'home',
   components: {
     ICountUp
   },
+  mixins: [Mixin.getMixin()],
   data () {
     return {
       desktopEditFlag: false, // 是否进入编辑操作
@@ -179,88 +198,6 @@ export default {
         }
       },
       asyncData: {}, // 异步数据
-      // 备份区域的测试数据
-      testData: {
-        model1: {
-          title: '模块1',
-          fileTitleEditFlag: false,
-          data: []
-        },
-        model2: {
-          title: '模块2',
-          fileTitleEditFlag: false,
-          data: [{
-            picturesize: 'sizem',
-            picturetype: 'style-num',
-            bgcolor: 'bg-blue',
-            applicationtitle: '数字样式1',
-            pictureid: 'test4',
-            picturecontent: {
-              apiurl: 'http://192.168.91.13:3000/mock/112/portal/list',
-              contentdata: [
-                {
-                  title: '今日新增',
-                  filedkey: 'today'
-                }
-              ]
-            }
-          }]
-        },
-        model3: {
-          title: '模块3',
-          fileTitleEditFlag: false,
-          data: [{
-            picturesize: 'sizem',
-            picturetype: 'style-list',
-            bgcolor: 'bg-orange',
-            applicationtitle: '数字样式2',
-            pictureid: 'test8',
-            picturecontent: {
-              apiurl: 'http://192.168.91.13:3000/mock/112/portal/list',
-              contentdata: [
-                {
-                  title: '昨日新增',
-                  filedkey: 'yesterday'
-                },
-                {
-                  title: '今日新增',
-                  filedkey: 'today'
-                }
-              ]
-            }
-          }]
-        },
-        model4: {
-          title: '模块4',
-          fileTitleEditFlag: false,
-          data: [{
-            picturesize: 'sizel',
-            picturetype: 'style-text',
-            bgcolor: 'bg-orange',
-            applicationtitle: '文本样式3',
-            pictureid: 'test12',
-            picturecontent: {
-              apiurl: 'http://192.168.91.13:3000/mock/112/portal/text',
-              contentdata: [
-                {
-                  title: '昨日新增',
-                  filedkey: 'yesterday'
-                }
-              ]
-            }
-          }]
-        },
-        model5: {
-          title: '',
-          fileTitleEditFlag: false,
-          data: []
-        },
-        model6: {
-          title: '',
-          fileTitleEditFlag: false,
-          data: []
-        }
-      },
       // 桌面需要的数据格式
       desktopData: {
         model1: {
@@ -500,24 +437,6 @@ export default {
         }
       }
     },
-    // 用户操作--桌面还原、用户退出
-    async userOprate (cmd) {
-      let _this = this
-      if (cmd === 'fallback') {
-        const res = await fallback()
-        if (res.data.code === 1) {
-          _this.showMessage('success', '还原成功')
-          _this.initdesktopData()
-        }
-      }
-      if (cmd === 'logout') {
-        const res = await logout()
-        if (res.data.code === 1) {
-          _this.showMessage('success', '注销成功')
-          location.href = res.data.data
-        }
-      }
-    },
     // 异步定时任务
     asyncTimingTack () {
       let _this = this
@@ -558,26 +477,6 @@ export default {
         })
       }
       this.$set(this.asyncData[key], 'data', data)
-    },
-    // 获取用户信息
-    async getUserRole () {
-      const res = await userRole()
-      if (res.data.code === 1) {
-        this.name = res.data.data.name
-        this.role = res.data.data.role
-        this.seeyonToken = res.data.data.orgname
-        this.initdesktopData()
-      } else {
-        this.showMessage('warning', res.data.message)
-      }
-    },
-    // 显示消息
-    showMessage (type, message, time) {
-      Message({
-        type: type || 'success',
-        message: message || '未定义的消息内容',
-        duration: time || 2000
-      })
     }
   },
   mounted () {
