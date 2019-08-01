@@ -145,7 +145,7 @@
           <el-form-item label="原始密码" prop="oldPass" :rules="[{ required: true, message: '请输入原始密码', trigger: 'blur' }]">
             <el-input type="password" v-model="password.oldPass" autocomplete="off" placeholder="请输入原始密码"></el-input>
           </el-form-item>
-          <el-form-item label="新密码" prop="newPass" :rules="[{ required: true, message: '请输入新密码', trigger: 'blur' }]">
+          <el-form-item label="新密码" prop="newPass" :rules="[{ required: true, validator: checkPassFormat, trigger: 'blur' }]">
             <el-input type="password" v-model="password.newPass" autocomplete="off" placeholder="请输入新密码"></el-input>
           </el-form-item>
           <el-form-item label="确认新密码" prop="confirmPass" :rules="[{ required: true, validator: confirmPass, trigger: 'blur' }]">
@@ -401,7 +401,7 @@ export default {
     // 打开磁贴对应链接
     openMetroUrl (url, applicationenable) {
       if (applicationenable === 0) {
-        this.showMessage('error', '该模块暂未启用')
+        this.showMessage('error', '您没有使用权限，请联系管理员')
       } else {
         if (!this.desktopEditFlag) {
           const reg = RegExp('/seeyon/shkkLinkController.do')
