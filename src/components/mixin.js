@@ -137,11 +137,20 @@ export default class mixin {
             this.updatePasswordVisible = true
           }
         },
+        checkPassFormat (rule, value, callback) {
+          if (value === '') {
+            callback(new Error('请输入新密码'))
+          } else if (!(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,15}$/.test(value))) {
+            callback(new Error('请输入8~15位密码，必须包含字母、数字'))
+          } else {
+            callback()
+          }
+        },
         confirmPass (rule, value, callback) {
           if (value === '') {
             callback(new Error('请确认新密码'))
           } else if (value !== this.password.newPass) {
-            callback(new Error('两次输入密码不一致!'))
+            callback(new Error('两次密码输入不一致!'))
           } else {
             callback()
           }
